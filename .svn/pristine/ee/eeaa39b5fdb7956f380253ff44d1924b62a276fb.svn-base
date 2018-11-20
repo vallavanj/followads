@@ -1,0 +1,412 @@
+<style>
+.select2-selection__choice__remove {
+	color:#fff !important;	
+}
+.select2-selection__choice {
+	background-color: #007bff !important;
+    border-color: #006fe6 !important;
+    padding: 1px 10px !important;
+    color: #fff !important;
+}
+</style>
+
+  
+<div class="content-wrapper">
+ <section class="content-header">
+     <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="popup_title">Add Advertisement</h1>
+          </div>
+           <!--<div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('ads')); ?>">Manage Ads</a></li>
+              <li class="breadcrumb-item active">Add Ads</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row justify-content-md-center">
+			  <!-- left column -->
+			 <div class="col-md-6">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data","id"=>"demo-form","data-parsley-validate"=>"")); ?>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <?php echo Form::label('business_name','Business Name'); ?><span class="mandatory">*</span>
+					
+					
+						<select class="form-control" name="business_name" required="">
+							<?php $__currentLoopData = $business; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $busi): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+								<option value="<?php echo e($busi->business_id); ?>"><?php echo e($busi->name); ?></option>
+							<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+						</select>
+					
+					<a class="error_1"><?php echo e($errors->first('business_name')); ?></a>
+                  </div>
+				   <div class="form-group">
+                    <?php echo Form::label('ads_name','Advertisement Name'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('ads_name',null,['class'=>'form-control','placeholder'=>'Name','required'=>""]); ?>
+
+					<a class="error_1"><?php echo e($errors->first('ads_name')); ?></a>
+                  </div>
+				  <div class="form-group">
+                  <?php echo Form::label('valid_from','Valid From'); ?>
+
+
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="fa fa-calendar"></i>
+                      </span>
+                    </div>
+					<?php echo Form::text('valid_from',null,['class'=>'form-control float-right','placeholder'=>'Valid From','id'=>"validfrom"]); ?>
+
+                  </div>
+                  <!-- /.input group -->
+                </div>
+				<div class="form-group">
+					 <?php echo Form::label('valid_to','Valid To'); ?>
+
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="fa fa-calendar"></i>
+                      </span>
+                    </div>
+					<?php echo Form::text('valid_to',null,['class'=>'form-control float-right','placeholder'=>'Valid To','id'=>'validto']); ?>
+
+                  </div>
+                  <!-- /.input group -->
+                </div>
+				 <div class="form-group">
+					<?php echo Form::label('ads_icon','Advertisment icon'); ?>
+
+                    <div class="input-group">
+                      <div class="custom-file">
+						
+						<input type="file" name="ads_icon" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                
+				
+				 <div class="form-group">
+					<p><?php echo Form::label('ads_image','Advertisement Image'); ?><span class="mandatory">*</span> <br><a class="btn btn-sm btn-default" id="add_image_field" href="#"><i class="fa fa-plus" aria-hidden="true"></i> Add Image</a> <a class="btn btn-sm btn-default" id="remove_image_field" href="#"><i class="fa fa-times" aria-hidden="true"></i> Remove Image</a>
+					</p>
+                    <div class="input-group">
+                      <div class="custom-filex w-100">
+					  <input type="file" name="ads_image[]" class="form-control" required="">
+						<!--<?php echo Form::file('ads_image',['class'=>'custom-file-input','id'=>'exampleInputFile','multiple','required']); ?>-->
+						
+                      </div>
+                    </div>
+                  </div>
+				  <div id="add_img_field">
+				  </div>
+				   <div class="form-group">
+                    <?php echo Form::label('category_name','Category Name'); ?><span class="mandatory">*</span><br>
+					
+					<select class="form-control select2"  name="category_name[]" multiple="multiple" data-placeholder="category name">
+							<?php $__currentLoopData = $value_cat_pat; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+								<optgroup label="<?php echo e($value['parent_cat']); ?>">
+									<?php $__currentLoopData = $value['children_value']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$val): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+										<option value="<?php echo $key;  ?>"><?php echo e($val); ?></option>
+									<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+								</optgroup>
+							<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+							<?php $__currentLoopData = $category; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categ): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+									<option value="<?php echo e($categ->category_id); ?>"><?php echo e($categ->category_name); ?></option>
+							<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+							
+					</select>
+					
+						
+			   
+			
+				
+					<a class="error_1"><?php echo e($errors->first('category_name')); ?></a>
+                  </div>
+				  
+				  <div class="form-group">
+                    <?php echo Form::label('search_term','Search Terms'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('search_term',null,['class'=>'form-control','placeholder'=>'Search Terms','required'=>'','id'=>'search_term']); ?>
+
+					<a class="error_1" id='searchterm_error'></a>
+                  </div>
+				  
+				  <div class="form-group">
+                    <?php echo Form::label('offer_code','Offer Code'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('offer_code',null,['class'=>'form-control','placeholder'=>'Offer Code','id'=>'offer_code','required'=>'']); ?>
+
+					<a class="error_1" id="offer_error"></a>
+                  </div>
+				  
+				  <div class="form-group">
+                    <?php echo Form::label('offer_type_code','Offer Type Code'); ?><span class="mandatory">*</span>
+					<select class="form-control" name="offer_type_code" required>
+					<option value="">--Please Select Offer Type Code --</option>
+					<option value="barcode">Barcode</option>
+					<option value="qrcode">QRcode</option>
+					<option value="plaincode">Plaincode</option>
+					</select>
+					<a class="error_1"><?php echo e($errors->first('offer_type_code')); ?></a>
+                  </div>
+				  <!--Lang Set-->
+				  <div class="add_lang_ext">
+				  <div class="form-group">
+				 <a href="#" id="add_lang_1" class="btn btn-sm btn-default"><i class="fa fa-plus" aria-hidden="true"></i>  Add Language
+ </a> <a href="#" id="remove_lang_1" class="btn btn-sm btn-default"><i class="fa fa-times" aria-hidden="true"></i>
+ Remove Language</a> <hr>
+                    <?php echo Form::label('language_name','Language Name'); ?> <span class="mandatory">*</span>
+					
+					<br>
+					<?php /* <select class="form-control" name="language_name[]">
+					<option value="">--Select Language--</option>
+					@foreach($lang as $lan)
+					<option value="{{$lan->language_id}}">{{$lan->name_in_english}}</option>
+					@endforeach
+					</select> 
+					<a class="error_1">{{ $errors->first('language_name') }}</a>*/ ?>
+					<?php $__currentLoopData = $lang; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lan): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+					<input type="radio" name="language_name[0]" value="<?php echo e($lan->language_id); ?>" class="" required=""> <?php echo e($lan->name_in_english); ?> 
+					<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+                  </div>
+				   <div class="form-group">
+                    <?php echo Form::label('desc','Description'); ?><span class="mandatory">*</span>
+					<?php echo Form::textarea('desc[]',null,['class'=>'form-control','placeholder'=>'Description','col'=>5,'rows'=>3,"required"=>""]); ?>
+
+					<a class="error_1"><?php echo e($errors->first('desc')); ?></a>
+                  </div>
+				   <div class="form-group">
+                    <?php echo Form::label('caption','Caption'); ?>
+
+					<?php echo Form::text('caption[]',null,['class'=>'form-control','placeholder'=>'Caption']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('caption')); ?></a>
+                  </div>
+				  <hr>
+				  </div>
+				  <div id="add_lang">
+				  
+				  </div>
+				  
+				</div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary','id'=>'submit_button']); ?>
+
+				<a href="<?php echo e(url('ads_list')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+    </section>
+</div>
+
+<script src="<?php echo e(URL::asset('admin/jquery/jquery.min.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('admin/js/parsley.min.js')); ?>"></script>
+<script src="<?php echo e(URL::asset('admin/select2/select2.full.min.js')); ?>"></script>
+<script>
+$(document).ready(function () {
+    $('.select2').select2();
+  });
+$('#add_image_field').click(function(){
+	/* $('#add_img_field').html('<div class="input-group"><div class="custom-file"><input type="file" name="business_image[]" class="form-control></div></div></div>'); */
+	$('#add_img_field').append('<p><input type="file" name="ads_image[]" class="form-control" required=""> </p>');
+});
+
+$('#remove_image_field').on('click', function () {
+    $('#add_img_field input:file:last').remove();
+});
+
+	/* $('#reservation').daterangepicker(); */
+	/* var startDate;
+	$('#validfrom').dateTimePicker({
+                mode: 'date',
+               
+				startDate: '+1d',
+                format: 'dd-MM-yyyy',
+				todayHighlight: true,
+				autoclose: true,
+				onChangeDateTime: function(dp,$input){
+                               startDate = $("#validfrom").val();
+                                        }
+				});
+				$('#validto').dateTimePicker({
+                mode: 'date',
+               
+				startDate: '+1d',
+				format: 'dd-MM-yyyy',
+				todayHighlight: true,
+				autoclose: true,
+				  onClose: function(current_time, $input){
+                            var endDate = $("#validto").val();
+                            if(startDate>endDate){
+                                   alert('Please select correct date');
+                             }
+             }
+				}); */
+				
+	$("#validfrom").datepicker({
+		  mode: 'date',
+		format: 'dd-mm-yyyy',
+		autoclose: true,
+}).on('changeDate', function (selected) {
+    var startDate = new Date(selected.date.valueOf());
+    $('#validto').datepicker('setStartDate', startDate);
+}).on('clearDate', function (selected) {
+    $('#validto').datepicker('setStartDate', null);
+});
+
+$("#validto").datepicker({
+	  mode: 'date',
+  format: 'dd-mm-yyyy',
+   autoclose: true,
+  
+}).on('changeDate', function (selected) {
+   var endDate = new Date(selected.date.valueOf());
+   $('#validfrom').datepicker('setEndDate', endDate);
+}).on('clearDate', function (selected) {
+   $('#validfrom').datepicker('setEndDate', null);
+});
+
+
+/* down vote
+accepted
+Try this. Its working for me. */
+
+/* var startDate;
+         $("#validfrom").dateTimePicker({
+                     timepicker:true,
+                     closeOnDateSelect:false,
+                     closeOnTimeSelect: true,
+                     initTime: true,
+                     format: 'dd-MM-yyyy',
+                     minDate: 0,
+                     roundTime: 'ceil',
+                     onChangeDateTime: function(dp,$input){
+                               startDate = $("#validfrom").val();
+                                                           }
+                                                           });
+        $("#validto").dateTimePicker({
+                     timepicker:true,
+                     closeOnDateSelect:false,
+                     closeOnTimeSelect: true,
+                     initTime: true,
+                     format: 'dd-MM-yyyy',
+                     onClose: function(current_time, $input){
+                            var endDate = $("#validto").val();
+                            if(startDate>endDate){
+                                   alert('Please select correct date');
+                             }
+             }
+              }); */
+
+
+				
+	/* Tooltip */
+/* 	jQuery(function ($) {
+    $('form').validatr(); 
+}); */
+/* Add And Remove Language */
+$("#add_lang_1").click(function(){
+	var len = $('.add_lang_ext').length;
+	
+	$('#add_lang').append('<div class="add_lang_ext"><hr><div class="form-group"><?php echo Form::label('language_name','Language Name'); ?><span class="mandatory">*</span><br> <?php $__currentLoopData = $lang; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lan): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?><input type="radio" name="language_name['+len+']" value="<?php echo e($lan->language_id); ?>" class="" required=""> <?php echo e($lan->name_in_english); ?> <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?><a class="error_1"><?php echo e($errors->first('language_name')); ?></a></div><div class="form-group"><?php echo Form::label('desc','Description'); ?><span class="mandatory">*</span><?php echo Form::textarea('desc[]',null,['class'=>'form-control','placeholder'=>'Description','col'=>5,'rows'=>3,"required"=>""]); ?><a class="error_1"><?php echo e($errors->first('desc')); ?></a></div> <div class="form-group"><?php echo Form::label('caption','Caption'); ?><?php echo Form::text('caption[]',null,['class'=>'form-control','placeholder'=>'Caption']); ?><a class="error_1"><?php echo e($errors->first('caption')); ?></a></div></div>')
+});
+
+$('#remove_lang_1').on('click',function(){
+	/* alert('dhfglsf'); */
+	 $('#add_lang .add_lang_ext:last').remove();
+})
+
+
+$(function () {
+  $('#demo-form').parsley() 
+  });
+  
+  
+  $('#search_term').keyup(function(){
+	var search_term = $(this).val();
+	
+	$.ajax({
+		type:"POST",
+	
+		url:"ads_searchterm_unique",
+		data:{
+			search_term:search_term,
+			_token:'<?php echo e(csrf_token()); ?>'
+		},
+		success:function(response)
+		{
+			/* alert(response); */
+			if(response == 1)
+			{
+				$('#submit_button').attr('disabled','disabled');
+				$('#searchterm_error').html('<div id="search_unique">Search Term is exists</div>');
+			/* 	alert('Email is exits') */
+			}
+			else
+			{
+				$('#searchterm_error').html('');
+				if($('#offer_error').html() == "")
+				{
+				$('#submit_button').removeAttr('disabled');
+				}
+			}
+		}
+	})
+  });
+  
+  $('#offer_code').keyup(function(){
+	  
+	  var offer_code = $('#offer_code').val();
+	  $.ajax({
+		type:"POST",
+	
+		url:"ads_offercode_unique",
+		data:{
+			offer_code:offer_code,
+			_token:'<?php echo e(csrf_token()); ?>'
+		},
+		success:function(response)
+		{
+			/* alert(response); */
+			if(response == 1)
+			{
+				$('#submit_button').attr('disabled','disabled');
+				$('#offer_error').html('<div id="offercode_unique">Offer Code is exists</div>');
+			/* 	alert('Email is exits') */
+			}
+			else
+			{
+				$('#offer_error').html('');
+				if($('#searchterm_error').html() == "")
+				{
+				$('#submit_button').removeAttr('disabled');
+				}
+			}
+		}
+	})
+  });
+ 
+</script>

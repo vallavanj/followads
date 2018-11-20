@@ -1,0 +1,211 @@
+
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="popup_title">Add User </h1>
+          </div>
+          <!--<div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('user')); ?>">Manage User</a></li>
+              <li class="breadcrumb-item active">Add User</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row justify-content-md-center">
+			  <!-- left column -->
+			 <div class="col-md-6" >
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data","id"=>"demo-form","data-parsley-validate"=>"")); ?>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <?php echo Form::label('name','Name'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('name',null,['class'=>'form-control','placeholder'=>'Name','required'=>""]); ?>
+
+					<a class="error_1"><?php echo e($errors->first('name')); ?></a>
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('email','Email'); ?>
+
+					<?php echo Form::email('email',null,['class'=>'form-control','placeholder'=>'Email','data-parsley-trigger'=>"change",'id'=>'email']); ?>
+
+					<a class="error_1" id="error_email"><?php echo e($errors->first('email')); ?></a>
+                  </div>
+				  <!--<div class="form-group">
+                    <?php echo Form::label('default_location','Location'); ?>
+
+					<?php echo Form::text('default_location',null,['class'=>'form-control','placeholder'=>'Location']); ?>
+
+                  </div>-->
+				  
+				  <div class="form-group">
+                    <?php echo Form::label('location','Location'); ?><span class="mandatory">*</span>
+					<div class="row">
+					<div class="col-md-4">
+					
+					<?php echo Form::text('lat',null,['class'=>'form-control','id'=>'latitude','placeholder'=>'Latitude','required'=>'']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('location')); ?></a>
+					</div>
+					<div class="col-md-4">
+					
+					<?php echo Form::text('longt',null,['class'=>'form-control','id'=>'longitude','placeholder'=>'Langitude','required'=>'']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('location')); ?></a>
+					</div>
+					<div class="col-md-3">
+						<button type="button" class="btn btn-primary btn-sm " data-toggle="modal" data-target="#myModal">Add</button>
+					</div>
+					</div>
+					
+                  </div>
+					
+				  
+				  <div class="form-group">
+                    <?php echo Form::label('default_language','Language'); ?>
+
+					<select class="form-control" name="default_language">
+						<option>Please Select Language</option>
+						<?php $__currentLoopData = $language; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $lang): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+					   <option value="<?php echo e($lang->language_id); ?>"><?php echo e($lang->name_in_english); ?></option>
+					   <?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+					   </select>
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('mobile','Mobile'); ?><span class="mandatory">*</span>
+					<?php echo Form::number('mobile',null,['class'=>'form-control','placeholder'=>'Mobile','required'=>"",'id'=>'mobile','data-parsley-minlength'=>'10','data-parsley-maxlength'=>'10']); ?>
+
+					<a class="error_1" id="mobile_error"><?php echo e($errors->first('mobile')); ?></a>
+                  </div>
+				  <div class="form-group">
+				  <?php echo Form::label('password','Password'); ?><span class="mandatory">*</span>
+					  <?php echo Form::password('password',['class'=>'form-control','placeholder'=>'Password','id'=>'exampleInputPassword1','required'=>"",'data-parsley-minlength'=>'8']); ?>
+
+					  <a class="error_1"><?php echo e($errors->first('password')); ?></a>
+                  </div>
+
+				  <div class="form-group">
+					<?php echo Form::label('profile','Profile'); ?>
+
+                    <div class="input-group">
+                      <div class="custom-file">
+						<!--<?php echo Form::file('profile',['class'=>'custom-file-input','id'=>'exampleInputFile']); ?>
+
+						<?php echo Form::label('Choose file','Choose file',['class'=>'custom-file-label']); ?>-->
+						<input type="file" name="profile" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary','id'=>'submit_button']); ?>
+
+				<a href="<?php echo e(url('user')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+	<script>
+	/* jQuery(function ($) {
+    $('form').validatr(); 
+}); */
+$(function () {
+  $('#demo-form').parsley() 
+  });
+
+$('#email').keyup(function(){
+	var email_value = $('#email').val();
+	
+	$.ajax({
+		type:"POST",
+	
+		url:"user_email_unique",
+		data:{
+			email:email_value,
+			_token:'<?php echo e(csrf_token()); ?>'
+		},
+		success:function(response)
+		{
+			/* alert(response); */
+			if(response == 1)
+			{
+				$('#submit_button').attr('disabled','disabled');
+				$('#error_email').html('<div id="email_unique">Email Id is exists</div>');
+			/* 	alert('Email is exits') */
+			}
+			else
+			{
+				$('#error_email').html('');
+				if($('#mobile_error').html()=="")
+				{
+				$('#submit_button').removeAttr('disabled');
+				}
+				
+			}
+		}
+	})
+});
+
+
+$('#mobile').keyup(function(){
+	var mobile_value = $(this).val();
+	
+	
+	$.ajax({
+		type:"POST",
+	
+		url:"user_mobile_unique",
+		data:{
+			mobile:mobile_value,
+			_token:'<?php echo e(csrf_token()); ?>'
+		},
+		success:function(response)
+		{
+			/* alert(response); */
+			if(response == 1)
+			{
+				$('#submit_button').attr('disabled','disabled');
+				$('#mobile_error').html('<div id="mobile_unique">Mobile Number is exists</div>');
+				
+			}
+			else
+			{
+				$('#mobile_error').html('');
+				if($('#error_email').html() =="")
+				{
+				$('#submit_button').removeAttr('disabled');
+				}
+				
+			}
+		}
+	})
+	
+	
+});
+	</script>
+	
+    </section>
+</div>
+	

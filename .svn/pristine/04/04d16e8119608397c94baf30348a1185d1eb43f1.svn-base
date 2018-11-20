@@ -1,0 +1,142 @@
+<?php
+
+/* namespace App\Http\Controllers; */
+namespace App\Http\Controllers\api;
+use App\Http\Controllers\Controller;
+use App\User_Followed_Business;
+use App\User_feedback;
+use App\User_business_rating;
+use App\User;
+use Session;
+use App\Activity_log;
+use Carbon\Carbon;
+use DB;
+use URL;
+use Illuminate\Http\Request;
+
+class Follow_storeController extends Controller
+{
+    public function followstore(Request $request)
+	{
+		$u_f_business = new User_Followed_Business;
+		if($request->followed_status == 1)
+		{
+			$u_f_business->user_id = $request->user_id;
+			$u_f_business->business_id = $request->business_id;
+			$u_f_business->is_active = 1;
+			$u_f_business->created_by = $request->user_id;
+			$u_f_business->created_at = Carbon::now();
+			$u_f_business->updated_by = $request->user_id;
+			$u_f_business->updated_at = Carbon::now();
+		
+			if($u_f_business->save())
+			{
+						$log = new Activity_log;
+						$log->user_id = $request->user_id;
+						$log->activity_code = $request->activity_Code;
+						$log->detail = "Follow Business";
+						$log->is_active =1;
+						$log->created_by =$request->user_id;
+						$log->updated_by = $request->user_id;
+						$log->created_at = Carbon::now();
+						$log->updated_at = Carbon::now();
+						$log->save();
+				$bus_follow_count = User_Followed_Business::query()
+																->select('*')
+																->where('user_id',$request->user_id)
+																->count();
+					
+				/* return response()->json(["error"=>"OWCE00",'message'=>'Business Followed  Successfully','status'=>'1',REST_Controller::HTTP_OK]); */
+				return response()->json(["error_code"=>"200",'error'=>'success','message'=>'Business Followed  Successfully','status'=>'1','count'=>$bus_follow_count]);
+			}
+		}
+		else
+		{
+			$User_Followed_Business = User_Followed_Business::query()
+																	->where('business_id','=',$request->business_id)
+																	->where('user_id','=',$request->user_id)
+																	->delete();
+			$bus_follow_count = User_Followed_Business::query()
+																->select('*')
+																->where('user_id',$request->user_id)
+																->count();
+		/* return response()->json(["error"=>"OWCE13",'message'=>'Business  Unfollowed Successfully','status'=>'0',REST_Controller::HTTP_OK]); */
+		return response()->json(["error_code"=>"200",'error'=>'success','message'=>'Business  Unfollowed Successfully','status'=>'0','count'=>$bus_follow_count]);
+		}
+	}
+	
+	public function followed_store_list(Request $request)
+	{
+			$u_f_business = User_Followed_Business::query()
+														->select('busi.*','user_followed_business.*','bus_addr.*')
+														->join('business as busi','user_followed_business.business_id','=','busi.business_id','Left')
+														->join('business_address as bus_addr','busi.business_id','=','bus_addr.business_id','Left')
+														->where('user_followed_business.user_id',$request->user_id)
+														->where('user_followed_business.is_active','=',1)
+														->groupBy('bus_addr.business_address_id')
+														->get();
+														
+					/* print_R($u_f_business);exit; */			
+			$user = User::query()
+								->select('*')
+								->where('user_id',$request->user_id)
+								->get();
+								/* print_R($user);exit; */
+			if($user->isNotEmpty())
+			{
+			$loaction = json_decode($user[0]->default_location,true);
+			
+			$latitudeFrom = $loaction['lat'];
+			$longitudeFrom = $loaction['lan'];
+			}
+				/* return response()->json($u_f_business); */
+			if(!empty($u_f_business))
+			{
+			$f_details = array();
+				foreach($u_f_business as $f_bus)
+				{
+				
+					$follow_bus_count = User_Followed_Business::query()
+															->select('*')
+															->where('business_id',$f_bus->business_id)
+															->count('user_id');
+															
+					$userfeedback = User_business_rating::query()
+														->select('*')
+														->where('business_id',$f_bus->business_id)
+														->count('user_id');
+					$loaction1 = json_decode( $f_bus->location,true);
+					$latitudeTo = $loaction1['lat'];
+					/* echo 	$latitudeto; */
+					$longitudeTo = $loaction1['lan'];
+					 /* echo 	$longitudeTo;  */
+					$theta = $longitudeFrom - $longitudeTo;
+					
+					$dist = sin(deg2rad($latitudeFrom)) * sin(deg2rad($latitudeTo)) +  cos(deg2rad($latitudeFrom)) * cos(deg2rad($latitudeTo)) * cos(deg2rad($theta));
+					$dist = acos($dist);
+					$dist = rad2deg($dist);
+					$miles = $dist * 60 * 1.1515;
+					$distance = ($miles * 1.609344).' km';
+					$path_2=URL::to('/').'/business1/uploads/doc/'.$f_bus->business_id;
+					$f_details[] = array(
+					'business_id'=>$f_bus->business_id,
+					'business_name'=>$f_bus->name,
+					'business_img'=>$path_2.'/'.$f_bus->logo_url,
+					'business_addr'=>$f_bus->address,
+					'business_interested_count'=>$follow_bus_count,
+					'business_review_count'=>$userfeedback,
+					'business_dist'=>$distance,
+					); 
+				}
+				/* return response()->json(["error"=>"OWCE00",'followed_business'=>$f_details,REST_Controller::HTTP_OK]); */
+				return response()->json(["error_code"=>"200",'error'=>'success','followed_business'=>$f_details]);
+				
+			}
+			else
+			{
+				$f_details = array();
+				/* return response()->json(["error"=>"OWCE13",'followed_business'=>$f_details,REST_Controller::HTTP_OK]); */
+				return response()->json(["error_code"=>"500",'error'=>'failure','followed_business'=>$f_details]);
+			}
+	}
+}

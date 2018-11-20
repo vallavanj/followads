@@ -1,0 +1,696 @@
+<?php
+
+namespace App\Http\Controllers\api;
+
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+// use App\Http\Controllers\api\REST_Controller;
+use App\Http\Controllers\Controller;
+use App\Business;
+use App\Business_Address;
+use App\Business_Category;
+use App\Business_image;
+use App\Business_Video;
+use App\Wallet;
+use App\Categories;
+use App\User;
+use App\Internaluser;
+use App\User_Followed_Business;
+use App\Wallettransaction;
+use App\Language;
+use App\Activity_log;
+use App\Advertisment;
+use App\Advertisment_Category;
+use App\Advertisement_Description;
+use App\Advertisement_Offer_Code;
+use App\Advertisement_Image;
+use App\Advertisement_Search_Terms;
+use App\User_Saved_Advertisement;
+use Session;
+use URL;
+use Image;
+use Hash;
+use Validator;
+use DB;
+use App\Attempt;
+use App\Http\Requests;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Auth;
+class User_apiController extends Controller
+{
+	
+   public function user_register(Request $request)
+	{
+		/* echo 1;exit; */
+						$user_reg_verify = User::query()
+									->select('*')
+									->where('mobile_number',$request->phone_number)
+									->get();
+		
+		
+		if($user_reg_verify->isEmpty())
+		{
+					/* echo 'fffghd';exit; */
+						$user = new User;
+					
+					/* echo rand(10000,1000);exit; */
+						$user->name = $request->full_name;
+						$user->email = rand();
+						$user->default_location = $request->default_location;
+						$user->default_language_id = $request->lang;
+						$user->mobile_number = $request->phone_number;
+						$user->phone_verified = 0;
+						$user->otp = rand(10000,1000);
+						$user->is_active = 1;
+						$user->created_by = 1;
+						$user->created_at = Carbon::now();
+						$user->updated_by = 1;
+						$user->updated_at = Carbon::now();
+						$user->remember_token =$request->_token;
+					
+						if($user->save());
+						{
+							$inserted_id = $user->user_id;
+							
+							$path='profile/uploads/doc/'.trim($inserted_id);
+								if (!is_dir($path)) {
+									mkdir($path, 0777, TRUE);
+									}
+							/* ECHO $inserted_id;EXIT; */
+						/* Internal users  if mobile user wants to show in admin panel the mobile user has to allow the internal user table*/
+							/* $i_user = new Internaluser; */
+						/* 	$i_user->password =  0;
+							$i_user->user_id = $inserted_id; */
+							/* $i_user->user_type_code = '';
+							$i_user->display_name = $request->full_name;
+							$i_user->is_active = 1;
+							$i_user->created_by = $inserted_id;
+							$i_user->created_at = Carbon::now();
+							$i_user->updated_by = $inserted_id;
+							$i_user->updated_at = Carbon::now();
+							$i_user->save(); */
+							
+							$log = new Activity_log;
+							$log->user_id = $inserted_id;
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Register";
+							$log->is_active =1;
+							$log->created_by =$inserted_id;
+							$log->updated_by = $inserted_id;
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							$log->save();
+							
+								$wallet = new Wallet;
+								$wallet->balance = 0; 
+								$wallet->users_id = $inserted_id; 
+								$wallet->is_active = 1; 
+								$wallet->created_at = Carbon::now(); 
+								$wallet->updated_at = Carbon::now(); 
+								$wallet->updated_at =  $inserted_id; 
+								$wallet->created_by = $inserted_id; 
+								$wallet->save(); 
+							
+							$user_device_update = User::query()
+															->where('user_id',$inserted_id)
+															->update([
+															'device_name'=>$request->device_name,
+															'device_id'=>$request->device_token
+															]);
+							$user_details = User::query()
+														->select('*')
+														->where('user_id',$inserted_id)
+														->get();
+													
+						/** sending sms to the otp method  **/
+				       $sendsms= file_get_contents("http://teleduce.corefactors.in/sendsms/?key=92051b10-d87b-438e-89ae-0e3deac35f76&from=FLWADS&route=3&to=".$user->mobile_number."&text=<#>".$user_details[0]->otp." Use as your login one time password. OTP is confidential. FollowAds never call you asking for OTP. V7alhQec1PA");						
+						$user = array(
+						'user_id'=>$user_details[0]->user_id,
+						'otp' =>$user_details[0]->otp,
+						'device_name'=>$user_details[0]->device_name,
+						'device_token'=>$user_details[0]->device_id,
+						'is_already_registered'=>'false',
+						);
+						Session::flash('success',"User Registerd Successfully");
+						return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Registerd Successfully','Messagesent'=>$sendsms,'information'=>$user]);
+						 
+						
+						}
+						return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Registerd Successfully']);
+					
+		}
+		else
+		{
+			
+			/* $otp=rand(10000,1000); */
+			$user_device_update = User::query()
+									->where('mobile_number',$request->phone_number)
+									->update([
+									'name'=>$request->full_name,
+									'default_language_id' => $request->lang,
+									'otp'=> rand(10000,1000),
+									'device_name'=>$request->device_name,
+									'device_id'=>$request->device_token
+													]);
+				$user_details = User::query()
+								->select('*')
+								->where('mobile_number',$request->phone_number)
+								->get();
+			$otp = "";
+			foreach($user_details as $u_d)
+			{
+				$otp = $u_d->otp;
+			}
+			$sendsms= file_get_contents("http://teleduce.corefactors.in/sendsms/?key=92051b10-d87b-438e-89ae-0e3deac35f76&from=FLWADS&route=3&to=".$request->phone_number."&text=text=<#>".$otp." Use as your login one time password. OTP is confidential. FollowAds never call you asking for OTP. V7alhQec1PA");						
+			$registered_or_not = array(
+			'user_id'=>$user_details[0]->user_id,
+			'otp' =>$otp,
+			'device_name'=>$user_details[0]->device_name,
+			'device_token'=>$user_details[0]->device_id, 
+			'is_already_registered'=>'true',
+			);
+			return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Already Register','information'=>$registered_or_not]);
+		}
+				
+}
+
+public function profile(Request $request)
+{
+	if($request->hasFile('prof_img'))
+	{
+		/* echo 'dffs';exit; */
+		$path='profile/uploads/doc/'.trim($request->user_id);
+								if (!is_dir($path)) {
+									mkdir($path, 0777, TRUE);
+									}
+							$profile = $request->File('prof_img');
+							$filename = time().'.'.$profile->getClientOriginalExtension();
+							$file = time().''.$profile->getClientOriginalName();
+							/* $location_1 = public_path($path.'/'.$file);
+							Image::make($profile)->save($location_1); */
+							$location_1 = public_path($path);
+							$profile->move($location_1,$file);
+							
+							
+							if(!empty($request->user_name))
+							{
+								$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+														->update(['name' => $request->user_name,
+																	'updated_at'=>Carbon::now()
+																	]);
+							}
+							if($request->email_id == "")
+							{
+								$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+														->update(['profile_img_url' =>$file,
+																	/* 'name' => $request->user_name, */
+																	'updated_at'=>Carbon::now()
+																	]);
+							}
+							else
+							{
+								/* echo "mm";exit; */
+								$user_emailverify = User::query()
+														->select('*')
+													->where('email',$request->email_id)
+													->where('user_id',$request->user_id)
+													->get();
+								
+								if($user_emailverify->isEmpty())
+								{
+									$user = User::query()
+												->select('*')
+												->where('email',$request->email_id)
+												->get();
+									if($user->isNotEmpty())
+									{
+									return response()->json(["error_code"=>"500","error"=>"error",'message'=>'Email Id Already Registered']);
+									}
+									
+									if(!empty($request->user_name))
+										{
+								$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+														->update(['name' => $request->user_name,
+																	'updated_at'=>Carbon::now()
+																	]);
+								}
+									
+									$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+														->update(['profile_img_url' =>$file,
+																	/* 'name' => $request->user_name, */
+																	'email'=> $request->email_id,
+																	'updated_at'=>Carbon::now()
+																	]);
+								}
+								else
+								{
+									if(!empty($request->user_name))
+										{
+								$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+														->update(['name' => $request->user_name,
+																	'updated_at'=>Carbon::now()
+																	]);
+								}
+									$user_update = User::query()
+														->where('user_id','=',$request->user_id)
+													->update([
+															'profile_img_url' =>$file,
+															/* 'name' => $request->user_name, */
+															'email'=> $request->email_id,
+															'updated_at'=>Carbon::now()
+															]);
+								}
+							}
+							
+			if(!empty($user_update))
+				{
+							
+							$log = new Activity_log;
+							$log->user_id =trim($request->user_id);
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Profile Update";
+							$log->is_active =1;
+							$log->created_by =trim($request->user_id);
+							$log->updated_by =trim($request->user_id);
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							$log->save();
+							
+							
+							
+				$user = User::query()
+								->select('name','user_id','profile_img_url','email')
+								->where('user_id',$request->user_id)
+								->get();
+					$path = URL::to('/').'/profile/uploads/doc/'.$user[0]->user_id;
+					$details_update = array(
+						'user_id'=>$user[0]->user_id,
+						'user_name'=>$user[0]->name,
+						'email_id'=>$user[0]->email,
+						'profile_img'=> $path.'/'.$user[0]->profile_img_url
+						
+						);
+
+						return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update]);
+						}
+						else
+						{
+						return response()->json(["error_code"=>"500","error"=>"error",'message'=>'User Profile Has NOT Been Updated Successfully']);
+						}
+						/* $filename = time().'.'.$prof->getClientOriginalExtension();
+						$file = time().''.$prof->getClientOriginalName();
+						$location_1 = public_path($path_1);
+						$prof->move($location_1,$file); */
+	}
+	else
+	{
+		if($request->email_id == "")
+		{
+			/* echo "fdf";exit; */
+			if(!empty($request->user_name))
+			{
+				$user_update = User::query()
+									->where('user_id','=',$request->user_id)
+									->update([
+												'name' => $request->user_name,
+												'updated_at'=>Carbon::now()
+											]);
+		
+				if(!empty($user_update))
+				{
+					
+								$log = new Activity_log;
+								$log->user_id = trim($request->user_id);
+								$log->activity_code = $request->activity_Code;
+								$log->detail = "User Profile Update";
+								$log->is_active =1;
+								$log->created_by =trim($request->user_id);
+								$log->updated_by =trim($request->user_id);
+								$log->created_at = Carbon::now();
+								$log->updated_at = Carbon::now();
+								$log->save();
+								
+								$user = User::query()
+									->select('name','user_id','profile_img_url','email')
+									->where('user_id',$request->user_id)
+									->get();
+							$path = URL::to('/').'/profile/uploads/doc/'.$user[0]->user_id;
+							$details_update = array(
+							'user_id'=>$user[0]->user_id,
+							'user_name'=>$user[0]->name,
+							'email_id'=>$user[0]->email,
+							'profile_img'=> $path.'/'.$user[0]->profile_img_url
+							
+							);
+								
+					
+					return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update]);
+				}
+				else
+				{
+					return response()->json(["error_code"=>"500","error"=>"error",'message'=>'User Profile Has NOT Been Updated Successfully']);
+				}
+			}
+		}
+		else
+		{
+			$user_emailverify = User::query()
+										->select('email')
+										->where('email',$request->email_id)
+										->where('user_id',$request->user_id)
+										->get();
+			if($user_emailverify->isEmpty())
+			{
+				$user = User::query()
+							->select('*')
+							->where('email',$request->email_id)
+							->get();
+			if($user->isNotEmpty())
+			{
+				return response()->json(["error_code"=>"500","error"=>"error",'message'=>'Email Id Already Registered']);
+			}
+			
+			if(!empty($request->user_name))
+			{
+				$user_update = User::query()
+									->where('user_id','=',$request->user_id)
+									->update(['name' => $request->user_name,
+											'updated_at'=>Carbon::now()
+										]);
+		}
+			
+			
+			$user_update = User::query()
+									->where('user_id','=',$request->user_id)
+									->update([
+											/* 'name' => $request->user_name, */
+											'email'=> $request->email_id,
+											'updated_at'=>Carbon::now()
+											]);
+			
+			
+							
+			if(!empty($user_update))
+						{
+							
+							$log = new Activity_log;
+							$log->user_id = trim($request->user_id);
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Profile Update";
+							$log->is_active =1;
+							$log->created_by =trim($request->user_id);
+							$log->updated_by =trim($request->user_id);
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							$log->save();
+							
+							
+							$user = User::query()
+												->select('name','user_id','profile_img_url','email')
+												->where('user_id',$request->user_id)
+												->get();
+												
+										/* echo $user[0]->email;exit; */
+						$path = URL::to('/').'/profile/uploads/doc/'.$user[0]->user_id;
+						
+						if(is_numeric($user[0]->email))
+						{
+							$email = "";
+						}
+						else
+						{
+							$email = $user[0]->email;
+						}
+						$details_update = array(
+						'user_id'=>$user[0]->user_id,
+						'user_name'=>$user[0]->name,
+						'email_id'=>$email,
+						'profile_img'=> $path.'/'.$user[0]->profile_img_url,
+						
+						);
+							
+							
+							
+							
+						/* return response()->json(["error"=>"OWCE00",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update,REST_Controller::HTTP_OK]); */
+						return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update]);
+						}
+						else
+						{
+						return response()->json(["error_code"=>"500","error"=>"error",'message'=>'User Profile Has NOT Updated Been Successfully']);
+						}
+		}
+		else
+		{
+			
+			if(!empty($request->user_name))
+			{
+				$user_update = User::query()
+										->where('user_id','=',$request->user_id)
+										->update(['name' => $request->user_name,
+												'updated_at'=>Carbon::now()
+												]);
+			}
+			
+			
+			$user_update = User::query()
+									->where('user_id','=',$request->user_id)
+									->update([
+											/* 'name' => $request->user_name, */
+											'email'=> $request->email_id
+											]);
+											
+			if(!empty($user_update))
+						{
+							
+							$log = new Activity_log;
+							$log->user_id = trim($request->user_id);
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Profile Update";
+							$log->is_active =1;
+							$log->created_by =trim($request->user_id);
+							$log->updated_by =trim($request->user_id);
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							$log->save();
+							
+							$user = User::query()
+												->select('name','user_id','profile_img_url','email')
+												->where('user_id',$request->user_id)
+												->get();
+												
+										/* echo $user[0]->email;exit; */
+						$path = URL::to('/').'/profile/uploads/doc/'.$user[0]->user_id;
+						if(is_numeric($user[0]->email))
+						{
+							$email = "";
+						}
+						else
+						{
+							$email = $user[0]->email;
+						}
+						$details_update = array(
+						'user_id'=>$user[0]->user_id,
+						'user_name'=>$user[0]->name,
+						'email_id'=>$email,
+						'profile_img'=> $path.'/'.$user[0]->profile_img_url,
+						
+						);
+							
+							
+							
+							
+						/* return response()->json(["error"=>"OWCE00",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update,REST_Controller::HTTP_OK]); */
+						return response()->json(["error_code"=>"200","error"=>"success",'message'=>'User Profile Has Been Updated Successfully','information'=>$details_update]);
+						}
+						else
+						{
+						return response()->json(["error_code"=>"500","error"=>"error",'message'=>'User Profile Has NOT Been Updated Successfully']);
+						}
+		}
+	}
+}
+
+}
+
+public function otp_verification(Request $request)
+{
+	$user = User::query()
+					->select('users.*','language.name_in_english as lang_name')
+					->join('language','users.default_language_id','=','language.language_id')
+					->where('otp',trim($request->otp))
+					->where('user_id',trim($request->user_id))
+					->get();
+					
+					/* print_r($user);exit; */
+	$u_foll_business = User_Followed_Business::query()
+						->select('*')
+						->where('user_id',trim($request->user_id))
+						->get();
+												
+	$wallet = Wallet::query()
+						->select('*')
+						->where('users_id',trim($request->user_id))
+						->get();
+						
+						/* DB::enableQueryLog(); */
+	$w_transaction = Wallettransaction::query()
+					->select('wal.*','wallet_transactions.*','gc.*')
+					->join('wallet as wal','wallet_transactions.wallet_id','=','wal.wallet_id','Left')
+					->join('gift_coupon as gc','wallet_transactions.gift_coupon_id','=','gc.gift_coupon_id','Left')
+					/* ->join('wallet_redeem_request as wrr','wallet_transactions.wallet_id','=','wrr.wallet_id','Left') */
+					->where('wal.users_id',trim($request->user_id))
+					->get();
+								/* $query = DB::getQueryLog();
+
+							$query = end($query);
+							print_r($query );exit; */			
+											
+				$usr_sav_ad = User_Saved_Advertisement::query()
+							->select('*')
+							->where('user_id',trim($request->user_id))
+							->count();
+							
+				$userdata=DB::table('user_saved_advertisement')
+					->where('user_id','=',trim($request->user_id))
+					->get();
+				$values_count=count($userdata);
+				
+				$user_used_coupon_list=DB::table('user_redemmed_advertisement_code')
+										->where('user_id','=',trim($request->user_id))
+										->get();
+				$user_redem_count=count($user_used_coupon_list);
+												
+			/* if($usr_sav_ad->isNotEmpty())
+			{
+				$usr_save_ad_count = $usr_sav_ad[0]->advertisement_id;
+			}
+			else
+			{
+				$usr_save_ad_count = 0;
+			} */
+						/* return response()->json($w_transaction); */				
+							/*  */
+				/* return  response()->json($w_transaction);exit; */
+				if($u_foll_business->isNotEmpty())
+				{
+			$business_count = count($u_foll_business[0]->business_id);
+				}
+				else
+				{
+					$business_count = 0;
+				}
+				if($w_transaction->isNotEmpty())
+				{
+				$gcoupon_count = count($w_transaction[0]->gift_coupon_id);
+				}
+				else
+				{
+					$gcoupon_count = 0;
+				}
+				
+			if($user->isNotEmpty())
+			{
+				$path = URL::to('/').'/profile/uploads/doc/'.$user[0]->user_id;
+				if(!empty($user[0]->profile_img_url))
+							{
+								$image = $path.'/'.$user[0]->profile_img_url;
+							}
+							else
+							{
+								$image ="";
+							}
+							
+					if(is_numeric($user[0]->email))
+						{
+							$email = "";
+						}
+						else
+						{
+							$email = $user[0]->email;
+						}
+				$otp_deatails = array(
+				'user_id'=>$user[0]->user_id,
+				'email_id'=>$email,
+				'lang'=>$user[0]->default_language_id,
+				'device_name'=>$user[0]->device_name,
+				'device_token'=>$user[0]->device_id,
+				'user_name'=>$user[0]->name,
+				'user_phone_no'=>$user[0]->mobile_number,
+				'profile_img'=> $image,
+				'followed_stores_count'=> $business_count,
+				'wallet_amt'=> $wallet[0]->balance,
+				'used_coupon_count' =>$user_redem_count,
+				'liked_offers_count' =>$usr_sav_ad
+				);
+				
+							$log = new Activity_log;
+							$log->user_id = $user[0]->user_id;
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Otp  Verified";
+							$log->is_active =1;
+							$log->created_by =$user[0]->user_id;
+							$log->updated_by = $user[0]->user_id;
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							
+							$log->save();
+				
+				
+				/* return response()->json(["error"=>"OWCE00",'message'=>'Verification done','information'=>$otp_deatails,REST_Controller::HTTP_OK]); */
+				return response()->json(["error_code"=>"200","error"=>"success",'message'=>'Verification done','user_reminder_count'=>$values_count,'information'=>$otp_deatails]);
+			}
+			else
+			{
+				return response()->json(["error_code"=>"500","error"=>"error",'message'=>'Verification Code Wrong']);
+			}
+}
+
+public function logout()
+{
+	$id = $request->user_id;
+	Auth::logout();
+	
+	return response()->json(["error"=>"OWCE00",'message'=>'User Logged Out Successfully',REST_Controller::HTTP_OK]);
+}
+
+
+public function change_lang(Request $request)
+{
+	$id = $request->user_id;
+	
+	$user_lang = User::query()
+							->where('user_id',$id)
+							->update(['default_language_id'=>$request->lang_id]);
+							
+	if($user_lang)
+	{
+							$log = new Activity_log;
+							$log->user_id = $request->user_id;
+							$log->activity_code = $request->activity_Code;
+							$log->detail = "User Change Language";
+							$log->is_active =1;
+							$log->created_by =$request->user_id;
+							$log->updated_by = $request->user_id;
+							$log->created_at = Carbon::now();
+							$log->updated_at = Carbon::now();
+							
+							$log->save();
+		
+		return response()->json(["error_code"=>"200","error"=>"success",'message'=>'Language Has Been Changed Successfully']);
+	}
+	else
+	{
+		return response()->json(["error_code"=>"500","error"=>"error",'message'=>'Language Not Changed']);
+	}
+}
+
+}
+
+
+

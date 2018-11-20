@@ -1,0 +1,136 @@
+
+<div class="content-wrapper">
+ <section class="content-header">
+     <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="popup_title">Add business</h1>
+          </div>
+          <!--<div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('stores')); ?>">Manage business</a></li>
+              <li class="breadcrumb-item active">Add business</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row justify-content-md-center">
+			  <!-- left column -->
+			 <div class="col-md-6">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data","id"=>"demo-form","data-parsley-validate"=>"")); ?>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <?php echo Form::label('name','Name'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('name',old('name'),['class'=>'form-control','placeholder'=>'Name','required'=>'']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('name')); ?></a> 
+                  </div>
+				  <div class="form-group">
+					<?php echo Form::label('business_logo','Business Logo'); ?><span class="mandatory">*</span>
+                    <div class="input-group">
+                      <div class="custom-filex w-100">
+						<!--<?php echo Form::file('business_logo',['class'=>'custom-file-input','id'=>'exampleInputFile','required'=>'']); ?>
+
+						<?php echo Form::label('Choose file','Choose file',['class'=>'custom-file-label']); ?>-->
+					<input type="file" name="business_logo" class="form-control"  required >
+						
+						<a class="error_1"><?php echo e($errors->first('business_logo')); ?></a>
+                      </div>
+                    </div>
+                  </div>
+               
+				   <div class="form-group">
+                    <?php echo Form::label('category_name','Category Name'); ?><span class="mandatory">*</span><br>			
+					<?php $__currentLoopData = $categ; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categ): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+					<input type="checkbox" value="<?php echo e($categ->category_id); ?>" class="" name="category_name[]" required="" data-parsley-mincheck="1"> <?php echo e($categ->category_name); ?><br><?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?><a class="error_1"><?php echo e($errors->first('category_name')); ?></a>
+                  </div>
+				  <div class="form-group">
+					<p><?php echo Form::label('business_image','Business Image'); ?><span class="mandatory">*</span> <br><span class="text-primary btn btn-sm btn-default" id="add_image_field"><i class="fa fa-plus" aria-hidden="true"></i> Add Image</span> <span class="text-primary btn btn-sm btn-default" id="remove_image_field"><i class="fa fa-times" aria-hidden="true"></i> Remove Image</span>
+					</p>
+                    <div class="input-group">
+                      <div class="custom-filex w-100">
+						
+					<input type="file" name="business_image[]" class="form-control" required =''>
+						<a class="error_1"><?php echo e($errors->first('business_image')); ?></a>
+                      </div>
+                    </div>
+                  </div>
+				  <div id="add_img_field">
+				  </div>
+				   
+				  <div class="form-group">
+					<p><?php echo Form::label('business_image','Business Video'); ?><span class="mandatory">*</span> <br><span class="text-primary btn btn-sm btn-default" id="add_video_field"><i class="fa fa-plus" aria-hidden="true"></i>Add Video</span> <span class="text-primary btn btn-sm btn-default" id="remove_video_field"> <i class="fa fa-times" aria-hidden="true"></i>Remove Video</span>
+					</p>
+                    <div class="input-group">
+                      <div class="custom-filex w-100">
+						<!--<?php echo Form::file('business_video[]',['class'=>'custom-file-input','id'=>'exampleInputFile','required',"accept"=>"video/*",'multiple']); ?>
+
+						<?php echo Form::label('Choose file','Choose file',['class'=>'custom-file-label']); ?>-->
+						<input type="file" name="business_video[]" class="form-control" accept="video/*" required =''>
+						
+						<a class="error_1"><?php echo e($errors->first('business_video')); ?></a>
+                      </div>
+                    </div>
+                  </div>
+				   <div id="add_vid_field">
+				  </div>
+                  
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary']); ?>
+
+				<a href="<?php echo e(url('bussiness')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+	<script>
+	/* jQuery(function ($) {
+    $('form').validatr(); 
+}); */
+
+$(function () {
+  $('#demo-form').parsley() 
+  });
+
+$('#add_image_field').click(function(){
+	/* $('#add_img_field').html('<div class="input-group"><div class="custom-file"><input type="file" name="business_image[]" class="form-control></div></div></div>'); */
+	$('#add_img_field').append('<p><input type="file" name="business_image[]" class="form-control" required=""></p>');
+});
+
+
+$('#add_video_field').click(function(){
+	$('#add_vid_field').append('<p><input type="file" name="business_video[]" class="form-control" accept="video/*" required=""></p>');
+});
+$('#remove_image_field').on('click', function () {
+    $('#add_img_field input:file:last').remove();
+});
+$('#remove_video_field').on('click', function () {
+    $('#add_vid_field input:file:last').remove();
+});
+
+	</script>
+    </section>   
+</div>
+	

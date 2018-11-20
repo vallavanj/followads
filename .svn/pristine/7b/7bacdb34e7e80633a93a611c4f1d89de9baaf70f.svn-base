@@ -1,0 +1,80 @@
+
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="popup_title">Add Categories</h1>
+          </div>
+           <!--<div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('categories')); ?>">Manage Categories</a></li>
+              <li class="breadcrumb-item active">Add Categories</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row justify-content-md-center">
+			  <!-- left column -->
+			 <div class="col-md-6" style="margin-left: 22%">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data","id"=>"demo-form","data-parsley-validate"=>"")); ?>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <?php echo Form::label('name','Name'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('name',null,['class'=>'form-control','placeholder'=>'Name','required'=>'']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('name')); ?></a>
+                  </div>  
+                   <div class="form-group">
+                    <?php echo Form::label('parent_cat','Parent Category'); ?>
+
+					<select class='form-control' name="parent_cat" >
+					<option value="0">Please select your Parent Category</option>
+					<?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $categ): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+					<option value="<?php echo e($categ->category_id); ?>"><?php echo e($categ->category_name); ?></option>
+					<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+					</select>
+					<a class="error_1"><?php echo e($errors->first('name')); ?></a>
+                  </div> 
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary']); ?>
+
+				<a href="<?php echo e(url('categories')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+    </section>
+	<script>
+	/* jQuery(function ($) {
+    $('form').validatr(); 
+}); */
+
+
+$(function () {
+  $('#demo-form').parsley() 
+  });
+</script>
+</div>
+	

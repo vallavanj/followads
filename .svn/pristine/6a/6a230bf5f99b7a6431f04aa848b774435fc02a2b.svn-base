@@ -1,0 +1,109 @@
+<?php $__env->startSection('title'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<?php echo $__env->make('adminpages.adminheader', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php echo $__env->make('adminpages.leftmenu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Add User</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('user')); ?>">Manage User</a></li>
+              <li class="breadcrumb-item active">Add User</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row">
+			  <!-- left column -->
+			 <div class="col-md-6" style="margin-left: 22%">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data")); ?>
+
+                <div class="card-body">
+                  <div class="form-group">
+                    <?php echo Form::label('name','Name'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('name',null,['class'=>'form-control','placeholder'=>'Name']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('name')); ?></a>
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('email','Email'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('email',null,['class'=>'form-control','placeholder'=>'Email']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('email')); ?></a>
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('default_location','Location'); ?>
+
+					<?php echo Form::text('default_location',null,['class'=>'form-control','placeholder'=>'Location']); ?>
+
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('default_language','Language'); ?>
+
+					<?php echo Form::text('default_language',null,['class'=>'form-control','placeholder'=>'Language']); ?>
+
+                  </div>
+				  <div class="form-group">
+                    <?php echo Form::label('mobile','Mobile'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('mobile',null,['class'=>'form-control','placeholder'=>'Mobile']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('mobile')); ?></a>
+                  </div>
+				  <div class="form-group">
+				  <?php echo Form::label('password','Password'); ?><span class="mandatory">*</span>
+					  <?php echo Form::password('password',['class'=>'form-control','placeholder'=>'Password','id'=>'exampleInputPassword1']); ?>
+
+					  <a class="error_1"><?php echo e($errors->first('password')); ?></a>
+                  </div>
+				  <div class="form-group">
+					<?php echo Form::label('profile','Profile'); ?>
+
+                    <div class="input-group">
+                      <div class="custom-file">
+						<?php echo Form::file('profile',['class'=>'custom-file-input','id'=>'exampleInputFile']); ?>
+
+						<?php echo Form::label('Choose file','Choose file',['class'=>'custom-file-label']); ?>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary']); ?>
+
+				<a href="<?php echo e(url('user')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+    </section>
+</div>
+	
+<?php echo $__env->make('adminpages.adminfooter', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.layout', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

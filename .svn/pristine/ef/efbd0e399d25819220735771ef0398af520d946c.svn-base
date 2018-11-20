@@ -1,0 +1,189 @@
+<?php
+
+namespace App\Http\Controllers\api;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use URL;
+use DB;
+use Carbon\Carbon;
+
+class NearbyController extends Controller
+{
+	function unique_multidim_array($array, $key) { 
+    $temp_array = array(); 
+    $i = 0; 
+    $key_array = array(); 
+    
+    foreach($array as $val) { 
+        if (!in_array($val[$key], $key_array)) { 
+            $key_array[$i] = $val[$key]; 
+            $temp_array[$i] = $val; 
+        } 
+        $i++; 
+    } 
+    return $temp_array; 
+}
+	
+	
+   public function nearby_business_list(Request $request)
+   {
+			$user_lat=$request->user_lat;
+			$user_lng=$request->user_lng;
+			$user_id=$request->user_id;
+			$adsid = json_decode($request->ads_ids);
+			/* print_R($adsid);exit; */
+			 $ads = count($adsid);
+			/* print_r($request->ads_ids);exit; */
+			if($ads > 0)
+			{
+					 $bus_deatails = array();  
+				foreach($adsid as $a_id)
+				{
+					$advertisement = DB::table('advertisement')->select('*')
+													->where('advertisement_id','=',$a_id)
+													->get();
+							/* echo $a_id; */
+							/* print_r($advertisement); */
+							$bus_id = array();
+						if($advertisement->IsnotEmpty())
+						{
+							
+							/* print_R($advertisement);exit; */
+							$business = DB::table('business')
+															->select('*')
+															->where('business_id',$advertisement[0]->business_id)
+															->get();
+															
+							$bus_address = DB::table('business_address')
+																->select('*')
+																->where('business_id',$advertisement[0]->business_id)
+																->get();
+							$business_image = DB::table('business_image')
+																->select('*')
+																->where('sequence_no',1)
+																->where('business_id',$advertisement[0]->business_id)
+																->get();
+																
+							$bus_deatails[] = array(
+							'business_id' => $business[0]->business_id,
+							'business_name' => $business[0]->name,
+							'business_lat' => $bus_address[0]->latitude,
+							'business_lng' => $bus_address[0]->longitude,
+							'business_img' => URL::to('/').'/business_images/uploads/doc/'.$business[0]->business_id.'/'.$business_image[0]->images_url,
+							);
+						}
+				}  
+				  /* $a =  array_unique($bus_deatails); */
+				 /*  print_R($bus_deatails);exit; */
+				 $a = $this->unique_multidim_array($bus_deatails,'business_id');
+					return response()->json(["error"=>"sucess","business_list"=> $a]);
+			}
+			else
+			{
+						$user_lat=$request->user_lat;
+						$user_lng=$request->user_lng;
+						$user_id=$request->user_id;
+						
+						$array_lat=array(
+						"lat"=>$user_lat,
+						"lan"=>$user_lng,
+						);
+						$location_lat=json_encode($array_lat);
+						if(!empty($request->user_id))
+						{
+						$user_update_lat_long=DB::table('users')
+							->where('user_id', $user_id)
+							->update(['default_location' => $location_lat]);
+						
+							$get_lat=DB::table('users')
+												->select('*')
+												->where('user_id', $user_id)
+												->get();
+						}
+						
+
+						$lat_long_distance=DB::select("select *,(((acos(sin((".$user_lat."*pi()/180)) * 
+							sin((`latitude`*pi()/180))+cos((".$user_lat."*pi()/180)) * 
+							cos((`latitude`*pi()/180)) * 
+							cos(((".$user_lng."- `longitude`)*pi()/180))))*180/pi())*60*1.1515) 
+							AS distance 
+							from business_address having distance <= 10");
+							$bus_id=array();
+						  foreach($lat_long_distance as $value) {
+							  
+							  $bus_id[]=array(
+							  "business_id" =>$value->business_id
+							  );
+						  }
+						  
+						  
+						 $business_get_atlong=DB::table('business')->select('*')
+											->whereIn('business_id',$bus_id)
+											->where('is_active','=','1')
+											->get();
+											
+						$business_ids=array();					
+						foreach($business_get_atlong as $value) {
+							  
+							  $business_ids[]=array(
+							  "business_id" =>$value->business_id
+							  );
+						  }
+						
+						  /* print_r($business_ids);exit; */
+						$ads_nerby_latlong=DB::table('advertisement')
+											->join('advertisement_description','advertisement.advertisement_id','=','advertisement_description.advertisement_id')
+											->whereIn('business_id',$business_ids)
+											->get();
+											
+						foreach($business_ids as $bus_id)
+						{
+							$business = DB::table('business')
+															->join('advertisement','business.business_id','=','advertisement.business_id')
+															->where('business.business_id',$bus_id)
+															->get();
+															
+							$bus_address = DB::table('business_address')
+																->select('*')
+																->whereIn('business_id',$bus_id)
+																->get();
+							$business_image = DB::table('business_image')
+																->select('*')
+																->where('sequence_no',1)
+																->whereIn('business_id',$bus_id)
+																->get();
+							/* echo "<pre>";
+							print_r($business); */
+						/* $advertisement_id=DB::table('advertisement')
+													->select('advertisement_id')
+													->where('business_id',$bus_id)
+													->get();
+													*/
+												/* 	echo "<pre>";
+								print_R($bus_address); */
+								
+							  if($business->IsnotEmpty())
+							  {  
+									
+										$nerby_ads_latlong[] = array(
+									'business_id' => $business[0]->business_id,
+									'business_name' => $business[0]->name,
+									'business_lat' => $bus_address[0]->latitude,
+									'business_lng' => $bus_address[0]->longitude,
+									'business_img' => URL::to('/').'/business_images/uploads/doc/'.$business[0]->business_id.'/'.$business_image[0]->images_url,
+									
+							 );  
+							 /* $nerby_ads_latlong[] =array(); */
+									}
+						} 
+						/* exit; */
+				}
+					
+						$b = $this->unique_multidim_array($nerby_ads_latlong,'business_id');
+						  
+						  
+					return response()->json(["error"=>"sucess","business_list"=> $nerby_ads_latlong]);
+	}
+}
+

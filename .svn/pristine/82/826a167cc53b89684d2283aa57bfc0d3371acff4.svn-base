@@ -1,0 +1,91 @@
+@extends('layouts.layout')
+@section('title')
+@stop
+@section('content')
+<style>
+.has-feedback .error {
+	color:#ff0000f7;
+	font-weight: 450 !important;
+}
+</style>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+   <b>Admin</b> Login
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+	
+      <p class="login-box-msg">Follow Ads Login</p>
+				@if(Session::has('error'))
+						<div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a>
+							{{ Session::get('error') }}
+						</div>
+				@elseif(Session::has( 'success' ))
+						<div class="alert alert-success"><a class="close" data-dismiss="alert">×</a>
+							{{ Session::get('success') }}
+						</div>
+				@endif
+		{{Form::open(array('id'=>"demo-form","data-parsley-validate"=>""))}}
+        <div class="form-group has-feedback">
+		  {!! Form::text('name','',['class'=>'form-control',"placeholder"=>"Email","required"=>""]) !!}
+          <span class="fa fa-envelope form-control-feedback"></span>
+        </div>
+        <div class="form-group has-feedback">
+		  {!! Form::password('password',['class'=>'form-control',"placeholder"=>"Password","required"=>""]) !!}
+          <span class="fa fa-lock form-control-feedback"></span>
+        </div>
+        <div class="row">
+          <div class="col-8">
+           <!-- <div class="checkbox icheck">
+              <label>
+                <input type="checkbox"> Remember Me
+              </label>
+            </div>-->
+          </div>
+          <!-- /.col -->
+          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+          </div>
+          <!-- /.col -->
+        </div>
+		{{Form::close()}}
+      <!-- /.social-auth-links -->
+
+      <p class="mb-1">
+         <a href="{{URL('forgot')}}">I forgot my password</a>
+      </p>
+      <p class="mb-0">
+      <!--  <a href="register.html" class="text-center">Register a new membership</a>-->
+      </p>
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+
+<script>
+$(document).ready(function () {
+	
+/* $('.alert').delay(2000).fadeOut(); */
+	
+});
+/* $("#admin_login").validate({
+      // Specify the validation rules
+        rules: {
+            name: "required",
+            password: "required"
+				
+         },
+        messages: {
+            name: "Please enter your email",
+             password:  "Please enter  the password"
+              
+        },
+        submitHandler: function(form) {
+            form.submit();
+        }
+    }); */
+
+</script>
+</body>

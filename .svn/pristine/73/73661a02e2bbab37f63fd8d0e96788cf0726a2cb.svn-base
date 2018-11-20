@@ -1,0 +1,404 @@
+
+<?php $__env->startSection('title'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<?php echo $__env->make('adminpages.adminheader', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php echo $__env->make('adminpages.leftmenu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<style>
+.search_section {
+	margin:30px 30px;
+}
+</style>
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Manage Wallet Redeem</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('dashboard')); ?>">Home</a></li>
+              <li class="breadcrumb-item active">Manage Wallet Redeem</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+<script type="text/javascript">
+	// Status 
+	jQuery(document).on('click','.status_checks',function(){
+	var status = ($(this).hasClass("btns-success")) ? '0' : '1';
+	var msg = (status =='0')? 'Deactivate' : 'Activate';	
+	/* alert(msg); */
+	
+	var current_element = $(this); 
+	
+	if(msg !== 'Activate')
+	{
+	
+	var id = $(current_element).attr('data');
+	var amount = $(current_element).attr('aria');
+	var w_id = $(current_element).attr('data-id');
+	/* alert(w_id); */
+	/* alert(amount); */
+	/* alert(id); */
+/* alert(status); */
+		$.ajax({
+					type      : "POST",
+					url       : "<?php echo e(URL('wallet_redeem_activestatus')); ?> ",   
+					data:{id:id ,
+						status:status,
+						amount:amount,
+						wid :w_id,
+						_token: '<?php echo e(csrf_token()); ?>'
+							},
+					success : function(response) {
+				/* 		alert(response); */
+						if(response==1)
+						{
+							
+							$('#status_'+id).removeClass("status_checks btn btn_w btns-danger");
+							$('#status_'+id).addClass("status_checks btn btn_w btns-success");
+							$("#single_details").html('<div class="alert alert-success text-center">Amount Activated Sucessfully</div>');
+							$('#modal-default').modal('show');
+						}
+						if(response==0)
+						{
+							$('#status_'+id).removeClass("status_checks btn btn_w btns-success");
+							$('#status_'+id).addClass("status_checks btn btn_w btns-danger");
+							$("#single_details").html('<div class="alert alert-warning text-center">Amount Activated Sucessfully</div>');
+							$('#modal-default').modal('show');
+						}
+					}
+			});
+			
+		}
+    });
+</script>
+<section class="content">
+      <div class="row">
+        <div class="col-12">
+		<?php if(Session::has('success')): ?>
+			<li class="alert alert-success"><?php echo e(Session::get('success')); ?></li>
+		<?php endif; ?>
+          <div class="">
+            <div class="">
+              <h3 class="card-title"></h3>
+            </div>
+            <!-- /.card-header -->
+            
+          <!-- /.card -->
+
+          <div class="card">
+		   <div class="search_section">
+					<div class="row clearfix" >
+					  <div class="col-2">
+						<div class="add-adv-btn" style="display:inline-block;top:0px;">
+							<!--<h3 class="card-title">Data Table With Full Features</h3>-->
+							<a href="#" onclick="call_add_page()" style="font-color:#000000 !important; text-decoration:none;"><button class="btn btn-success" >Add Wallet Redeem</button></a>
+						</div>
+					  </div>
+					  <div class="col-8">
+					    <div class="input-group input-daterange">
+							<label>Date Range Filter </label>
+							<input type="text" id="min-date" class="form-control date-range-filter" data-date-format="yyyy-mm-dd" placeholder="From:">
+							<div class="input-group-addon">to</div>
+							<input type="text" id="max-date" class="form-control date-range-filter" data-date-format="yyyy-mm-dd" placeholder="To:">
+
+						</div>
+					  </div>
+						<div class="col-2">
+								<select id="exportLink" class="form-control">
+								<option>Export Reedem Request</option>
+								<option id="excel">Export as XLS</option>                                         
+								<option id="pdf">Export as PDF</option>
+								<option id="csv">Export as CSV</option>
+							</select>
+						</div>
+					</div>
+		    </div>
+		  
+            
+            <!-- /.card-header -->
+			<?PHP 
+			/* print_r($w_transaction);exit; */
+			?>
+            <div class="card-body">
+				 
+              <table id="example1" class="table table-bordered table-responsive">
+                <thead>
+				
+                <tr>
+						<th>Wallet Id</th>
+						<th>Name</th>
+						<th>Payment Channel</th>
+						<th>Acccount holder name</th>
+						<th>Account Number</th>
+						<th>IFSC CODE</th>
+						<th>Bank Name</th>
+						<th>Branch Name</th>
+						<th>MIMD</th>
+						<th>Redeem Amount</th>
+						<th>Requested Date</th>
+                  <th></th>
+                </tr>
+                </thead>
+                <tbody>
+				
+				
+				<?PHP 
+
+	          
+			foreach($wallet_reedem_all_pay as $w_transaction) {
+				
+				$status = ($w_transaction['is_active']==1)? 'Active' : 'Inactive';
+				$status_class = ($w_transaction['is_active'] ==1)? 'btns-success': 'btns-danger';
+				$status_approved = ($w_transaction['is_active']==1)? 'Approve' : 'Approved';
+			/* print_r($lang);exit; */
+			
+
+			?>
+               <tr>
+					<td><?php echo e($w_transaction['wallet_id']); ?></td>
+					<td><?php echo e($w_transaction['username']); ?></td>
+					<td><?php echo e($w_transaction['payment_channel']); ?></td>
+					<td><?php echo e($w_transaction['Acccount_holder_name']); ?></td>
+					<td><?php echo e($w_transaction['Account_Number']); ?></td>
+					<td><?php echo e($w_transaction['IFSC_CODE']); ?></td>
+					<td><?php echo e($w_transaction['Bank_Name']); ?></td>
+					<td><?php echo e($w_transaction['Branch_Name']); ?></td>
+					<td><?php echo e($w_transaction['MIMD']); ?></td>  
+				 <td class="r_amount"><?php echo e($w_transaction['reedem_amount']); ?></td>
+				 <td>
+				   <?php 
+						$request_date=$w_transaction['request_date'];
+						$value_split=explode(' ',$request_date);
+						//$newDate = date("m/d/Y", strtotime($value_split['0']));
+						echo $value_split['0'];
+				    ?>
+				</td>
+				 
+			
+				 
+			<td>
+				 <a href="#" title="<?php echo e($status_approved); ?>" class="btn btn-outline-primary btn-sm">
+				  <i title="Status" id="status_<?php echo e($w_transaction['wallet_redeem_id']); ?>" data="<?php echo e($w_transaction['wallet_redeem_id']); ?>" aria="<?php echo e($w_transaction['reedem_amount']); ?>" data-id="<?php echo e($w_transaction['wallet_id']); ?>" class="status_checks btn btn_w <?php echo e($status_class); ?>"><span class="<?php echo e($status); ?>"></span></i></a>
+				  </td>
+
+                </tr>
+				<?php } ?>
+                </tbody>
+               <?PHP /* <tfoot>
+                <tr>
+                  <th>Rendering engine</th>
+                  <th>Browser</th>
+                  <th>Platform(s)</th>
+                  <th>Engine version</th>
+                  <th>CSS grade</th>
+                  <th>CSS grade</th>
+                  <th>CSS grade</th>
+                </tr>
+                </tfoot> */ ?>
+              </table>
+			  
+		
+</div>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+		
+		<!--Pop up-->
+		<div id="modal-default" class="modal fade in" style="display: none; padding-right: 17px;">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header modal_head_bg">
+               <!-- <button aria-label="Close" data-dismiss="modal" class="close" type="button"></button>-->
+                
+				  <!--<a class="close-modal" rel="modal:close" href="#close-modal">Close</a>-->
+               <h4 class="modal-title "><b>Details</b></h4><a aria-label="Close" data-dismiss="modal" class="close"><span aria-hidden="true">×</span></a><div id='singlecontent_id'></div>
+              </div>
+              <div class="modal-body single_details" id="single_details"></div>
+              <!--<div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default pull-left" type="button">Close</button>
+                <button class="btn btn-primary" type="button">Save changes</button>
+              </div>-->
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+		
+		<!--Pages Modal-->
+		<div id="modal-default_1" class="modal fade in bd-example-modal-lg" style="display: none;">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content" >
+              <div class="modal-header modal_head_bg">
+               <!-- <button aria-label="Close" data-dismiss="modal" class="close" type="button"></button>-->
+                <a aria-label="Close" data-dismiss="modal" class="close"><span aria-hidden="true">×</span></a>
+				  <!--<a class="close-modal" rel="modal:close" href="#close-modal">Close</a>-->
+               <h4 class="modal-title "><b></b></h4><div id='singlecontent_id'></div>
+              </div>
+              <div class="modal-body page_details" id="page_details" style="padding:0px;"></div>
+              <!--<div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-default pull-left" type="button">Close</button>
+                <button class="btn btn-primary" type="button">Save changes</button>
+              </div>-->
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+		
+		
+      </div>
+      <!-- /.row -->
+    </section>
+	</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.18/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.bootstrap.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.html5.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.2.4/js/buttons.print.js"></script>
+	<script>
+
+  
+  $(document).ready(function() {
+	  
+    $('#example1').DataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+            'copyHtml5',
+            'excelHtml5',
+            'csvHtml5',
+            'pdfHtml5'
+        ],
+       initComplete: function() {
+       	 var $buttons = $('.dt-buttons').hide();
+         $('#exportLink').on('change', function() {
+            var btnClass = $(this).find(":selected")[0].id 
+               ? '.buttons-' + $(this).find(":selected")[0].id 
+               : null;
+            if (btnClass) $buttons.find(btnClass).click(); 
+			$('#exportLink').prop('selectedIndex',0);
+         })
+       } 
+    } );
+
+
+$('.input-daterange input').each(function() {
+  $(this).datepicker('clearDates');
+});
+
+
+$.fn.dataTable.ext.search.push(
+  function(settings, data, dataIndex) {
+    var min = $('#min-date').val();
+    var max = $('#max-date').val();
+    var createdAt = data[10] || 0; // Our date column in the table
+	//console.log(createdAt);
+
+    if (
+      (min == "" || max == "") ||
+      (moment(createdAt).isSameOrAfter(min) && moment(createdAt).isSameOrBefore(max))
+    ) {
+      return true;
+    }
+    return false;
+  }
+);
+
+// Re-draw the table when the a date range filter changes
+$('.date-range-filter').change(function() {
+  $('#example1').DataTable().draw();
+});
+
+$('#my-table_filter').hide();
+});
+  
+
+
+
+
+
+
+
+
+  
+  
+  function doconfirm()
+	{
+		var delete_content=confirm("Are you sure want to delete this record?");
+		if(delete_content!=true)
+		{
+			return false;
+		}
+	}
+	function single_view(id)
+	{
+		/* alert(id); */
+		var token = $('meta[name="csrf_token"]').attr('content');
+		$.ajax({
+			type:"POST",
+			url:"<?php echo e(URL('wallet_redeem_single')); ?>",
+			data:{
+				uid:id,
+				_token: '<?php echo e(csrf_token()); ?>'
+			},success:function(response)
+			{
+				/* alert(response); */
+				$("#single_details").html(response);
+			}
+			
+		});
+		$('#modal-default').modal('show');
+	}
+	
+	function call_page(id)
+	{
+		/* alert('fdasf'); */
+		var ur = 'wallet_redeemedit/'+id;
+		/* alert(ur); */
+		$.ajax({
+			type:"GET",
+			url:ur,
+			data:{
+				uid:id,
+				_token: '<?php echo e(csrf_token()); ?>'
+			},success:function(response)
+			{
+				$("#page_details").html(response);
+			}
+			
+		});
+		$('#modal-default_1').modal('show');
+		
+	}
+	function call_add_page()
+	{
+		$.ajax({
+			type:"GET",
+			url:"<?php echo e(url('wallet_redeemadd')); ?>",
+			data:{
+			},success:function(response)
+			{
+				$("#page_details").html(response);
+			}
+			
+		});
+		$('#modal-default_1').modal('show');
+	}
+	
+</script>
+<?php echo $__env->make('adminpages.adminfooter', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.layout', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

@@ -1,0 +1,85 @@
+<?php $__env->startSection('title'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<?php echo $__env->make('adminpages.adminheader', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php echo $__env->make('adminpages.leftmenu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Add Wallet Transaction</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+			  <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('ads_image')); ?>">Manage Wallet</a></li>
+              <li class="breadcrumb-item active">Add Wallet Transaction</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+	<div class="container-fluid">
+			<div class="row">
+			  <!-- left column -->
+			 <div class="col-md-6" style="margin-left: 22%">
+            <!-- general form elements -->
+            <div class="card card-primary">
+                <!--<div class="card-header">
+              <h3 class="card-title">Add User</h3>
+              </div>-->
+              <!-- /.card-header -->
+              <!-- form start -->
+			  <?php echo Form::open(array("enctype"=>"multipart/form-data")); ?>
+
+                <div class="card-body">
+                  
+				   <div class="form-group">
+                    <?php echo Form::label('transaction_type','Transaction Type'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('transaction_type','',['class'=>'form-control','placeholder'=>'Transaction Type']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('transaction_type')); ?></a>
+                  </div>
+				  
+				 <div class="form-group">
+                    <?php echo Form::label('transaction_amount','Transaction Amount'); ?><span class="mandatory">*</span>
+					<?php echo Form::text('transaction_amount','',['class'=>'form-control','placeholder'=>'Transaction Amount']); ?>
+
+					<a class="error_1"><?php echo e($errors->first('transaction_amount')); ?></a>
+                  </div>
+				
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer">
+                 <?php echo Form::submit('Submit',['class'=>'btn btn-primary']); ?>
+
+				<a href="<?php echo e(url('wallet_transaction')); ?>"><?php echo Form::button('Cancel',['class'=>'btn btn-danger']); ?></a>
+                </div>
+             <?php echo Form::close(); ?>
+
+            </div>
+
+		</div>
+	</div>
+	</div>
+    </section>
+</div>
+<script>
+	/* $('#reservation').daterangepicker(); */
+	$('#validfrom').dateTimePicker({
+                mode: 'dateTime',
+                format: 'yyyy/MM/dd HH:mm:ss'
+				});
+				$('#validto').dateTimePicker({
+                mode: 'dateTime',
+                format: 'yyyy/MM/dd HH:mm:ss'
+				});
+</script>
+<?php echo $__env->make('adminpages.adminfooter', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.layout', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

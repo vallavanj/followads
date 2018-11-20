@@ -1,0 +1,121 @@
+<?php
+
+/* namespace App\Http\Controllers; */
+namespace App\Http\Controllers\api;
+use Carbon\Carbon;
+use App\Http\Controllers\Controller;
+use App\User_Saved_Advertisement;
+use App\Advertisement_Description;
+use URL;
+use DB;
+use App\Activity_log;
+use Illuminate\Http\Request;
+
+class Liked_offer_listController extends Controller
+{
+	public function liked_offers_list(Request $request)
+	{
+		/* DB::enableQueryLog();  */
+		$ads_liked = User_Saved_Advertisement::query()
+												->select('adv.*','adv.name as adv_name','ad_desc.description','bus.*','bus.business_id as bus_id','adv_bus_addr.*','user_saved_advertisement.*','bus_addr.*')
+												->join('advertisement as adv','adv.advertisement_id','=','user_saved_advertisement.advertisement_id','Left')
+												->join('advertisement_description as ad_desc','adv.advertisement_id','=','ad_desc.advertisement_id','Left')
+												->join('business as bus','adv.business_id','=','bus.business_id','Left')
+												->join('advertisement_business_address as adv_bus_addr','adv.advertisement_id','=','adv_bus_addr.advertisement_id','Left')
+												->join('business_address as bus_addr','bus.business_id','=','bus_addr.business_id','Left')
+												->where('user_saved_advertisement.user_id',$request->user_id)
+												->groupBy('bus_addr.business_address_id')
+												->get();
+		
+						/* $query = DB::getQueryLog();
+							$query = end($query);
+							print_r($query); exit; */
+			if(!empty($ads_liked))
+			{
+				$liked = array();
+				foreach($ads_liked as $ads_like)
+				{
+					$path=URL::to('/').'/advertisement_images/uploads/doc/'.$ads_like->advertisement_id;
+					$path_2=URL::to('/').'/business1/uploads/doc/'.$ads_like->bus_id;
+					$date_to = date('d-m-Y', strtotime($ads_like->valid_to));
+					$liked[]  = array(
+					'advertisement_id'=>$ads_like->advertisement_id,
+					'business_id'=>$ads_like->bus_id,
+					'business_name'=>$ads_like->name,
+					'business_img'=>$path_2.'/'.$ads_like->logo_url,
+					'advertisement_name'=>$ads_like->adv_name,
+					'advertisement_addr'=>$ads_like->address,
+					'advertisement_desc'=>$ads_like->description,
+					'advertisement_img'=>url('/').'/ads1/uploads/doc/'.$ads_like->advertisement_id.'/'.$ads_like->icon_image_url,
+					'advertisement_exp_date'=>$date_to
+					);
+					/* $liked['offer_id']=$ads_like->advertisement_id;
+					$liked['store_id']=$ads_like->business_id;
+					$liked['store_name']=$ads_like->name;
+					$liked['store_img']=$ads_like->logo_url;
+					$liked['offer_addr']=$ads_like->address;
+					$liked['offer_desc']=$ads_like->description;
+					$liked['offer_img']=$path.''.$ads_like->icon_image_url;
+					$liked['offer_exp_date']=$path.''.$ads_like->valid_to; */
+				}
+				return response()->json(["error_code"=>"200","error"=>"success",'Liked_advertisements'=>$liked]);
+			}
+			else
+			{
+				$liked = array();
+				return response()->json(["error_code"=>"500","error"=>"error",'Liked_advertisements'=>$liked]);
+			}
+												
+				/* return response()->json($liked); */
+		
+	}
+	public function like_offer(Request $request)
+	{
+		$liked_ads = new User_Saved_Advertisement;
+		$fav = $request->fav_status;
+		if($fav == 1)
+		{
+			$liked_ads->user_id = $request->user_id;
+			$liked_ads->advertisement_id = $request->advertisement_id;
+			$liked_ads->is_active = 1;
+			$liked_ads->created_by = $request->user_id;
+			$liked_ads->created_at = Carbon::now();
+			$liked_ads->updated_by = $request->user_id;
+			$liked_ads->updated_at = Carbon::now();
+			if($liked_ads->save())
+			{
+				$ads_liked_count = User_Saved_Advertisement::query()
+															->select('*')
+															->where('user_id',$request->user_id)
+															->count();
+					
+				$log = new Activity_log;
+				$log->user_id = $request->user_id;
+				$log->activity_code = $request->activity_Code;
+				$log->detail = "User Liked Advertisement";
+				$log->is_active =1;
+				$log->created_by =$request->user_id;
+				$log->updated_by = $request->user_id;
+				$log->created_at = Carbon::now();
+				$log->updated_at = Carbon::now();
+				$log->save();
+			
+			
+				return response()->json(["error_code"=>"200","error"=>"success",'message'=>'Advertisement Liked Successfully','status'=>'1','count'=>$ads_liked_count]);
+			}
+		}
+		else
+		{
+			$User_Saved_Advertisement = User_Saved_Advertisement::query()
+											->where('user_id',$request->user_id)
+											->where('advertisement_id',$request->advertisement_id)
+											->delete();
+																	
+			$ads_liked_count = User_Saved_Advertisement::query()
+															->select('*')
+															->where('user_id',$request->user_id)
+															->count();
+			return response()->json(["error_code"=>"200","error"=>"success",'message'=>'Advertisement Unliked Successfully','status'=>'0','count'=>$ads_liked_count]);
+		}
+	}
+}

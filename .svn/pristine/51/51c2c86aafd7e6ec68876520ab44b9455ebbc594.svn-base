@@ -1,0 +1,127 @@
+<?php $__env->startSection('title'); ?>
+<?php $__env->stopSection(); ?>
+<?php $__env->startSection('content'); ?>
+<?php echo $__env->make('adminpages.adminheader', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php echo $__env->make('adminpages.leftmenu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<div class="content-wrapper">
+ <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Manage Static Pages</h1>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+			  <li><i class="nav-icon fa fa-dashboard"></i></li>
+              <li class="breadcrumb-item"><a href="<?php echo e(url('/')); ?>">Home</a></li>
+              <li class="breadcrumb-item active">Manage Static Pages</li>
+            </ol>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+<section class="content">
+      <div class="row">
+        <div class="col-12">
+		<?php if(Session::has('success')): ?>
+			<li class="alert alert-success"><?php echo e(Session::get('success')); ?></li>
+		<?php endif; ?>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Manage Static Pages</h3>
+            </div>
+            <!-- /.card-header -->
+            
+          <!-- /.card -->
+
+          <div class="card">
+            <div class="card-header">
+              <!--<h3 class="card-title">Data Table With Full Features</h3>-->
+			  <a href="<?php echo e(url('static_pagesadd')); ?>" style="font-color:#000000 !important; text-decoration:none;"><button class="btn btn-success" >Add Pages</button></a>
+            </div>
+            <!-- /.card-header -->
+			<?PHP 
+			/* print_r($deatils);exit; */
+			?>
+            <div class="card-body">
+              <table id="example1" class="table table-bordered table-striped">
+                <thead>
+				
+                <tr>
+                  <th>Page Title</th>
+                  <th>Page Content</th>
+                  <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+				<?php $__currentLoopData = $deatils; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page): $__env->incrementLoopIndices(); $loop = $__env->getFirstLoop(); ?>
+                <tr>
+                  <td><?php echo e($page->page_title); ?></td>
+                  <td><?php echo e(Str::limit($page->page_content, 25)); ?>
+
+                  </td>
+				  <td><a href="<?php echo e(url('pageedit/'.encrypt($page->page_id))); ?>"><i class="fa fa-edit fa-lg" aria-hidden="true"></i></a>
+				  <a href="<?php echo e(url('pagedelete/'.encrypt($page->page_id))); ?>"><li  class="fa fa-trash fa-lg" onclick= 'return doconfirm()'></li></a></td>
+                </tr>
+				<?php endforeach; $__env->popLoop(); $loop = $__env->getFirstLoop(); ?>
+                </tbody>
+               <?PHP /* <tfoot>
+                <tr>
+                  <th>Rendering engine</th>
+                  <th>Browser</th>
+                  <th>Platform(s)</th>
+                  <th>Engine version</th>
+                  <th>CSS grade</th>
+                  <th>CSS grade</th>
+                  <th>CSS grade</th>
+                </tr>
+                </tfoot> */ ?>
+              </table>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </section>
+	</div>
+	
+	<script>
+  $(function () {
+    $("#example1").DataTable({
+		'paging'      : true,
+		 "pageLength": 10,
+		'lengthChange': false,
+		'searching'   : true,
+		'ordering'    : true,
+		'info'        : false,
+		'autoWidth'   : false,
+		
+		columnDefs: [ {targets: [2], "orderable": false } ]
+	});
+   /*  $('#example2').DataTable({
+      'paging'      : false,
+	  'lengthChange': false,
+	  'searching'   : false,
+	  'ordering'    : true,
+	  'info'        : false,
+	  'autoWidth'   : false,
+    }); */
+  });
+  
+  
+  function doconfirm()
+	{
+		var delete_content=confirm("Are you sure want to delete this record?");
+		if(delete_content!=true)
+		{
+			return false;
+		}
+	}
+</script>
+<?php echo $__env->make('adminpages.adminfooter', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.layout', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

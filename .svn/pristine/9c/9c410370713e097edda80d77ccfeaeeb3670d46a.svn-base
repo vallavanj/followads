@@ -1,0 +1,239 @@
+<?php
+
+/* namespace App\Http\Controllers; */
+namespace App\Http\Controllers\api;
+use App\Http\Controllers\Controller;
+use App\Business;
+use App\Business_Address;
+use App\Business_image;
+use App\Business_Video;
+use App\Business_Category;
+use App\Advertisement_Image;
+use App\Advertisment;
+use App\User;
+use DB;
+use URL;
+use Illuminate\Http\Request;
+
+class business_detailController extends Controller
+{
+    public function business_detail(Request $request)
+	{
+		/* echo "kjkd";exit; */
+		$id = $request->business_id;
+		$user_id = $request->user_id;
+		$user_lat=$request->user_lat;
+		$user_lng=$request->user_lng;
+		if(!empty($user_id)) {
+			$location = array(
+						'lat'=>$user_lat,
+						'lan'=>$user_lng,
+						);
+						
+			 $location1 = json_encode($location);
+				$userlatlng = User::query()
+										->where('user_id','=',$request->user_id)
+										->update(['default_location'=>$location1]);
+				$user = User::query()
+								->select('*')
+								->where('user_id',$request->user_id)
+								->get();
+								/* print_r($user);exit; */
+				$loaction = json_decode($user[0]->default_location,true);
+					
+				 $latitudeFrom = $loaction['lat'];
+				 $longitudeFrom = $loaction['lan'];
+				}
+				else {
+					$latitudeFrom = $user_lat;
+					$longitudeFrom = $user_lng;
+				}
+	$business = Business::query()
+								->select('*')
+								->where('business_id',$id)
+								->get();
+								
+				$buss_cat = Business_Category::query()
+													->select('category.category_name')
+													->join('category','business_category.category_id','=','category.category_id')
+													->where('business_id','=',$id)
+													->get()->toarray();
+													
+													
+							
+				$buss_adress = Business_Address::query()
+													->select('business_id','address','area','city','state','location','phone_number','map_url','latitude','longitude')
+													->where('business_id',$id)
+													->get()->toarray();
+				
+				$buss_adress_1 =  Business_Address::query()
+													->select('business_id','address','area','city','state','location','phone_number','map_url','latitude','longitude','business_address_id')
+													->where('business_id',$id)
+													->get();
+				
+				$distance = array();
+				$phone_num = array();
+				$address = array();
+					foreach($buss_adress_1 as $bus)
+					{
+						if(!empty($latitudeFrom))
+						{
+							$latitudeTo = $bus->latitude; 
+					/* echo 	$latitudeto; */
+							$longitudeTo = $bus->longitude;
+							 /* echo 	$longitudeTo;  */
+							$theta = $longitudeFrom - $longitudeTo;
+							
+							$dist = sin(deg2rad($latitudeFrom)) * sin(deg2rad($latitudeTo)) +  cos(deg2rad($latitudeFrom)) * cos(deg2rad($latitudeTo)) * cos(deg2rad($theta));
+							/* echo $dist; */
+							$dist = acos($dist);
+							$dist = rad2deg($dist);
+							$miles = $dist * 60 * 1.1515;
+							
+							/* $distance[] = ($miles * 1.609344).' km'; */
+							/* $phone_num[] = $bus->phone_number;  */
+							/* $address[] = $bus->address; */
+							array_push($distance,array('business_id'=>$bus->business_id,'business_address_id'=>$bus->business_address_id,'distance'=>round(($miles * 1.609344),2).' km'));
+							array_push($phone_num,array('business_id'=>$bus->business_id,'business_address_id'=>$bus->business_address_id,'phone_number'=> $bus->phone_number));
+							array_push($address,array('business_id'=>$bus->business_id,'business_address_id'=>$bus->business_address_id,'address'=> $bus->address));
+						}
+						else
+						{
+							$distance[]="";
+							$phone_num[] = $bus->phone_number; 
+							$address[] = $bus->address;
+						}
+					}
+					
+					 $b = min($distance);
+					 $bus_id = $b['business_address_id'];
+			$buss_adress_nearbyaddress =  Business_Address::query()
+													->select('business_id','address','area','city','state','location','phone_number','map_url','latitude','longitude','business_address_id')
+													->where('business_address_id',$bus_id)
+													->get();
+			/* bus_addrs_detail */
+			foreach($buss_adress_nearbyaddress as $busnearby)
+			{
+				$bus_addrs_detail=array(
+				'address'=>$busnearby->address,
+				'area'=>$busnearby->area,
+				'city'=>$busnearby->city,
+				'state'=>$busnearby->state,
+				/* 'location'=>$busnearby->location, */
+				'business_phone_no'=>$busnearby->phone_number,
+				'map_url'=>$busnearby->map_url,
+				'latitude'=>$busnearby->latitude,
+				'longitude'=>$busnearby->longitude,
+				'business_distance'=>$b['distance'],
+				'business_id'=>$b['business_id']
+				);
+			}
+													
+				$buss_image = Business_image::query()
+							->select('*')
+							->where('business_id',$id)
+							->get();
+				
+				
+		$buss_video = Business_Video::query()
+						->select('*')
+						->where('business_id',$id)
+						->get();
+												
+												
+		$business_review =  DB::table('user_business_rating')
+														->select('*')
+														->where('business_id',$id)
+														->count();
+														
+		$business_followed = DB::table('user_followed_business')
+															->select('*')
+															->where('business_id',$id)
+															->count();
+		$business_followed_liked = DB::table('user_followed_business')
+															->select('*')
+															->where('business_id',$id)
+															->where('user_id',$user_id)
+															->count();
+															
+		if(!empty($business_followed_liked))
+		{
+			$is_liked = "1";
+		}
+		else
+		{
+			$is_liked = "0";
+		}
+												
+				$category = array_column($buss_cat,'category_name');
+				$path_image = URL::to('/').'/business_images/uploads/doc/'.$business[0]->business_id;
+				$image = array(); 
+				foreach($buss_image as $key=>$img)
+				{
+					$image1 = $path_image.'/'.$img->images_url;
+					array_push($image,array('business_id'=>$img->business_id,'business_img'=>$image1));
+				}
+				$path_video = URL::to('/').'/business_video/uploads/doc/'.$business[0]->business_id;
+				$video = array();
+				foreach($buss_video as $key=>$vid)
+				{
+					$video1 = $path_video.'/'.$vid->business_video_url;
+					array_push($video,array('business_id'=>$vid->business_id,'business_vid'=>$video1));
+				}
+			$banner_img = DB::table('business_image')
+									->select('*')
+									->where('business_id',$id)
+									->where('sequence_no',1)
+									->get();
+									
+			$ads_id  = Advertisment::query()
+											->select('advertisement_id')
+											->where('business_id',$id)
+											->where('valid_to','>=', date("Y/m/d"))
+											->get();
+			$advertisement = array();
+			
+			foreach($ads_id as $key=>$ad_id)
+			{
+				$path_ads_img=URL::to('/').'/advertisement_images/uploads/doc/'.$ad_id->advertisement_id;
+				$ads_img = Advertisement_Image::query()
+													->select('*')
+													->where('advertisement_id',$ad_id->advertisement_id)
+													->get();
+				/* $ad[$key] =  $ad_id->advertisement_id;									
+				$ads_img[$key] = 'advertisement_images/uploads/doc/'.$ads_img[0]->advertisement_image_id .'/'.$ads_img[0]->image_url ; */
+				
+			array_push($advertisement,array('advertisement_id'=>$ads_img[0]->advertisement_id,'advertisement_img'=> $path_ads_img.'/'.$ads_img[0]->image_url));
+			}
+			
+						/* return response()->json($advertisement); */
+			$path=URL::to('/').'/business1/uploads/doc/'.$id;
+			$path_1=URL::to('/').'/business_images/uploads/doc/'.$id;
+			 $path_2=URL::to('/').'/business_video/uploads/doc/'.$id;
+			$bus_detail = array(
+			'name'=>$business[0]->name,
+			'logo'=>$path.'/'.$business[0]->logo_url,
+			'category'=>$category,
+			'business_reviews_count'=>$business_review,
+			'business_followed_count'=>$business_followed,
+			'business_images'=>$image,
+			'business_video'=> $video,
+			'advertisement'=>$advertisement,
+			'business_banner_img'=>$path_1.'/'.$banner_img[0]->images_url,
+			'is_followed'=>$is_liked,
+			/* 'business_distance'=>$b, */
+			'busines_address'=>$bus_addrs_detail,
+			/* 'busines_address'=>$address, */
+			
+			
+			);
+												
+				/* 	$a_ads = array();
+			array_push($a_ads,array($bus_detail)); */
+			
+			return response()->json(["error_code"=>"200","error"=>"success",'information'=>$bus_detail]);
+	}
+	
+	
+
+}

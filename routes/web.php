@@ -1,0 +1,373 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+/* Route::get('/', function () {
+    return view('adminpages.dashboard.index');
+}); */
+Route::get('adminlogin','AdminLoginController@adminlogin');
+Route::get('/','AdminLoginController@adminlogin');
+Route::get('dashboard','DashboardController@index');
+Route::get('login','AdminLoginController@login');
+Route::post('login','AdminLoginController@login');
+/* Route::post('adminlogin',function(){echo "fdgfs";}) */;
+/* Routes for user */
+Route::get('user','UserController@index');
+Route::get('useradd','UserController@createuser');
+Route::get('useredit/{id}','UserController@edituser');
+Route::get('userdelete/{id}','UserController@user_delete');
+Route::post('useradd','UserController@createuser');
+Route::post('useredit/{id}','UserController@updateuser');
+Route::post('user_single','UserController@user_single_view');
+Route::post('user_single_active','UserController@user_single_activestatus');
+Route::post('user_email_unique','UserController@user_email_unique');
+Route::post('user_mobile_unique','UserController@user_mobile_unique');
+Route::post('user_email_unique2','UserController@user_email_unique2');
+Route::post('user_mobile_unique2','UserController@user_mobile_unique2');
+
+/* Route for users payment method  */
+Route::get('users_payment_method','User_Payment_MethodController@index');
+Route::get('users_payment_methodadd','User_Payment_MethodController@users_paymentadd');
+Route::get('users_payment_methodedit/{id}','User_Payment_MethodController@users_paymentedit');
+Route::get('users_payment_methoddelete/{id}','User_Payment_MethodController@users_paymentdelete');
+Route::post('users_payment_methodadd','User_Payment_MethodController@users_paymentadd');
+Route::post('users_payment_methodedit/{id}','User_Payment_MethodController@users_paymentupdate');
+Route::post('users_payment_methodsingle','User_Payment_MethodController@users_payment_single');
+Route::post('users_payment_methodactive','User_Payment_MethodController@users_payment_activestatus');
+
+/* Route for User Payment Method Details */
+Route::get('u_pay_method_detail','User_Payment_Method_DetailsController@index');
+Route::get('u_pay_method_detailadd','User_Payment_Method_DetailsController@user_payment_method_detailadd');
+Route::get('u_pay_method_detailedit/{id}','User_Payment_Method_DetailsController@user_payment_method_detailedit');
+Route::get('u_pay_method_detaildelete/{id}','User_Payment_Method_DetailsController@user_payment_method_detaildelete');
+Route::post('u_pay_method_detailadd','User_Payment_Method_DetailsController@user_payment_method_detailadd');
+Route::post('u_pay_method_detailedit/{id}','User_Payment_Method_DetailsController@user_payment_method_detailupdate');
+Route::post('u_pay_method_detailsingle','User_Payment_Method_DetailsController@user_payment_method_detail_single');
+Route::post('u_pay_method_detailactive','User_Payment_Method_DetailsController@user_payment_method_detail_activestatus');
+
+/* Users_Saved_Advertisement */
+Route::get('user_saved_adv/{id}','User_Saved_AdvertisementController@index');
+Route::get('user_saved_advadd','User_Saved_AdvertisementController@user_saved_ad_add');
+Route::get('user_saved_advedit/{id}','User_Saved_AdvertisementController@user_saved_adedit');
+Route::get('user_saved_advdelete/{id}','User_Saved_AdvertisementController@user_saved_addelete');
+Route::post('user_saved_advadd','User_Saved_AdvertisementController@user_saved_ad_add');
+Route::post('user_saved_advedit/{id}','User_Saved_AdvertisementController@user_saved_adupdate');
+Route::post('user_saved_advsingle','User_Saved_AdvertisementController@user_saved_ad_single');
+Route::post('user_saved_advactive','User_Saved_AdvertisementController@user_saved_ad_activestatus');
+
+/* User_Followed_Business */
+Route::get('user_follow_business/{id}','User_Followed_BusinessController@index');
+Route::get('user_follow_businessadd','User_Followed_BusinessController@user_follow_business_add');
+Route::get('user_follow_businessedit/{id}','User_Followed_BusinessController@user_follow_businessedit');
+Route::get('user_follow_businessdelete/{id}','User_Followed_BusinessController@user_follow_businessdelete');
+Route::post('user_follow_businessadd','User_Followed_BusinessController@user_follow_business_add');
+Route::post('user_follow_businessedit/{id}','User_Followed_BusinessController@user_follow_businessupdate');
+Route::post('user_follow_businesssingle','User_Followed_BusinessController@user_follow_business_single');
+Route::post('user_follow_businessactive','User_Followed_BusinessController@user_follow_business_activestatus');
+
+/* User_Redemmed_Advertisement_Code */
+Route::get('user_red_adv_code','User_Redemmed_Advertisement_CodeController@index');
+Route::get('user_red_adv_codeadd','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_codecreate');
+Route::get('user_red_adv_codeedit/{id}','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_codeview');
+Route::get('user_red_adv_codedelete/{id}','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_codedelete');
+Route::post('user_red_adv_codeadd','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_codecreate');
+Route::post('user_red_adv_codeedit/{id}','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_codeupdate');
+Route::post('user_red_adv_codesingle','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_code_single');
+Route::post('user_red_adv_codeactive','User_Redemmed_Advertisement_CodeController@user_redemmed_advertisement_code_activestatus');
+
+/* Users Feedback */
+Route::get('users_feedback','User_feedbackController@index');
+Route::get('users_feedbackadd','User_feedbackController@users_feedbackadd');
+Route::get('userfeedbackedit/{id}','User_feedbackController@users_feedbackedit');
+Route::get('userfeedbackdelete/{id}','User_feedbackController@users_feedbackdelete');
+Route::post('users_feedbackadd','User_feedbackController@users_feedbackadd');
+Route::post('userfeedbackedit/{id}','User_feedbackController@users_feedbackupdate');
+Route::post('userfeedback_single','User_feedbackController@userfeedback_single');
+Route::post('userfeedback_activestatus','User_feedbackController@userfeedback_activestatus');
+
+/* User Business Rating */
+Route::get('users_busi_rate','User_business_ratingController@index');
+
+/* Routes for bussiness */
+Route::get('bussiness','BusinessController@index');
+Route::get('businessadd','BusinessController@create_business');
+Route::get('businessdelete/{id}','BusinessController@delete_business');
+Route::post('businessadd','BusinessController@create_business');
+Route::get('businessedit/{id}','BusinessController@view_business');
+Route::post('businessedit/{id}','BusinessController@update_business');
+Route::post('business_single','BusinessController@business_single_view');
+Route::post('business_single_active','BusinessController@business_single_activestatus');
+
+
+Route::post('business_ads_show','BusinessController@business_ads_show');
+
+/* Route for Business_Address */
+Route::get('business_addr/{id}','Business_AddressController@index');
+Route::get('business_addradd/{id}','Business_AddressController@business_addr_create');
+Route::get('buss_addredit/{id}','Business_AddressController@business_addr_view');
+Route::post('buss_addredit/{id}','Business_AddressController@business_addr_update');
+Route::get('buss_addrdelete/{id}','Business_AddressController@business_addr_delete');
+Route::post('business_addradd/{id}','Business_AddressController@business_addr_create');
+Route::post('business_addr_single','Business_AddressController@business_single_view');
+Route::post('business_addr_active','Business_AddressController@business_single_activestatus');
+Route::post('business_img_remove','BusinessController@business_img_remove');
+Route::post('business_vid_remove','BusinessController@business_vid_remove');
+
+/* Route for Business_Category */
+Route::get('buss_cat','Business_CategoryController@index');
+Route::get('buss_catadd','Business_CategoryController@buss_categ_create');
+Route::get('buss_catedit/{id}','Business_CategoryController@buss_categ_view');
+Route::get('buss_catdelete/{id}','Business_CategoryController@buss_categ_delete');
+Route::post('buss_catadd','Business_CategoryController@buss_categ_create');
+Route::post('buss_catedit/{id}','Business_CategoryController@buss_categ_update');
+Route::post('buss_cat_single','Business_CategoryController@buss_cat_single_view');
+Route::post('buss_cat_single_active','Business_CategoryController@business_single_activestatus');
+/* Route for Business Images */
+Route::get('buss_image','Business_imageController@index');
+Route::get('buss_imgadd','Business_imageController@business_image_create');
+Route::get('buss_imgedit/{id}','Business_imageController@business_image_view');
+Route::get('buss_imgdelete/{id}','Business_imageController@buss_categ_delete');
+Route::post('buss_imgadd','Business_imageController@business_image_create');
+Route::post('buss_imgedit/{id}','Business_imageController@business_image_update');
+Route::post('buss_img_single','Business_imageController@buss_cat_single_view');
+Route::post('buss_img_single_active','Business_imageController@business_single_activestatus');
+
+/* Route for Business Video */
+Route::get('buss_video','Business_VideoController@index');
+Route::get('buss_videoadd','Business_VideoController@business_video_create');
+Route::get('buss_videoedit/{id}','Business_VideoController@business_video_view');
+Route::get('buss_videodelete/{id}','Business_VideoController@business_video_delete');
+Route::post('buss_videoadd','Business_VideoController@business_video_create');
+Route::post('buss_videoedit/{id}','Business_VideoController@business_video_update');
+Route::post('buss_video_single','Business_VideoController@buss_video_single_view');
+Route::post('buss_video_single_active','Business_VideoController@business_single_activestatus');
+
+/* Routes for Catagories */
+Route::get('categories','CategoriesController@index');
+Route::get('categoriesadd','CategoriesController@categories_create');
+Route::get('categoriesedit/{id}','CategoriesController@categories_edit');
+Route::get('categoriesdelete/{id}','CategoriesController@categories_delete');
+Route::post('categoriesadd','CategoriesController@categories_create');
+Route::post('categoriesedit/{id}','CategoriesController@categories_update');
+Route::post('categories_single','CategoriesController@categories_single_view');
+Route::post('categories_single_active','CategoriesController@categories_single_activestatus');
+Route::get('categories_unique','CategoriesController@categories_unique1');
+Route::get('categories_unique2','CategoriesController@categories_unique2');
+
+/* Route for Gift Coupons */
+Route::get('coupons','Gift_CouponController@index');
+Route::get('couponsadd','Gift_CouponController@coupons_create');
+Route::get('couponsedit/{id}','Gift_CouponController@coupons_edit');
+Route::get('couponsdelete/{id}','Gift_CouponController@coupons_delete');
+Route::post('couponsadd','Gift_CouponController@coupons_create');
+Route::post('couponsedit/{id}','Gift_CouponController@coupons_update');
+Route::post('coupons_single','Gift_CouponController@coupons_single_view');
+Route::post('coupons_single_active','Gift_CouponController@coupons_single_activestatus');
+Route::post('coupon_code_unique','Gift_CouponController@coupon_code_unique');
+Route::post('coupon_code_unique1','Gift_CouponController@coupon_code_unique1');
+
+/* Route for Coupons Code */
+Route::get('coupons_code','CouponscodeController@index');
+Route::get('coupons_codesadd','CouponscodeController@coupons_codesadd');
+Route::get('coupons_codesedit/{id}','CouponscodeController@coupons_codesedit');
+Route::get('coupons_codesdelete/{id}','CouponscodeController@coupons_codesdelete');
+Route::post('coupons_codesadd','CouponscodeController@coupons_codesadd');
+Route::post('coupons_codesedit/{id}','CouponscodeController@coupons_codesupdate');
+
+
+/* Route for language */
+Route::get('language','LanguageController@index');
+Route::get('languageadd','LanguageController@language_craete');
+Route::get('languageedit/{id}','LanguageController@language_edit');
+Route::get('languagedelete/{id}','LanguageController@language_delete');
+Route::post('languageedit/{id}','LanguageController@language_update');
+Route::post('languageadd','LanguageController@language_craete');
+Route::post('language_active','LanguageController@language_active');
+Route::post('lang_single','LanguageController@lang_single');
+
+/* Route for Ads */
+Route::get('ads_list','AdvertismentController@index');
+Route::get('adsadd','AdvertismentController@advertisment_create');
+Route::get('adsedit/{id}','AdvertismentController@advertisment_view');
+Route::get('adsdelete/{id}','AdvertismentController@advertisment_delete');
+Route::post('adsadd','AdvertismentController@advertisment_create');
+Route::post('adsedit/{id}','AdvertismentController@advertisment_update');
+Route::post('ads_single','AdvertismentController@advertisment_single_view');
+Route::post('ads_activestatus','AdvertismentController@single_active');
+Route::post('ads_searchterm_unique','AdvertismentController@ads_searchterm_unique');
+Route::post('ads_offercode_unique','AdvertismentController@ads_offercode_unique');
+Route::post('ads_searchterm_unique2','AdvertismentController@ads_searchterm_unique2');
+Route::post('ads_offercode_unique2','AdvertismentController@ads_offercode_unique2');
+/* Route for Ads Category */
+
+Route::get('ads_ctaeg','Advertisment_CategoryController@index');
+Route::get('ads_ctaegadd','Advertisment_CategoryController@advertisment_categ_create');
+Route::get('ads_ctaegedit/{id}','Advertisment_CategoryController@advertisment_categ_view');
+Route::get('ads_ctaegdelete/{id}','Advertisment_CategoryController@advertisment_categ_delete');
+Route::post('ads_ctaegadd','Advertisment_CategoryController@advertisment_categ_create');
+Route::post('ads_ctaegedit/{id}','Advertisment_CategoryController@advertisment_categ_update');
+Route::post('ads_ctaeg_single','Advertisment_CategoryController@advertisment_categ_single_view');
+Route::post('ads_ctaeg_activestatus','Advertisment_CategoryController@advertisment_categ_activestatus');
+
+
+/* Route for Advertisement_Business_Address */
+
+Route::get('ads_bus_addr/{id}/{bus_id}','Advertisement_business_addressController@index');
+Route::get('ads_bus_addradd/{id}/{bus_id}','Advertisement_business_addressController@ads_bus_addr_create');
+Route::get('ads_bus_addredit/{id}/{bus_id}','Advertisement_business_addressController@ads_bus_addr_view');
+Route::get('ads_bus_addrdelete/{id}','Advertisement_business_addressController@ads_bus_addr_delete');
+Route::post('ads_bus_addradd/{id}/{bus_id}','Advertisement_business_addressController@ads_bus_addr_create');
+Route::post('ads_bus_addredit/{id}/{bus_id}','Advertisement_business_addressController@ads_bus_addr_update');
+Route::post('ads_bus_addr_single','Advertisement_business_addressController@ads_bus_addr_single');
+Route::post('ads_bus_addr_activestatus','Advertisement_business_addressController@ads_bus_addr_activestatus');
+Route::post('ads_address_check','Advertisement_business_addressController@ads_address_check');
+Route::post('ads_address_check2','Advertisement_business_addressController@ads_address_check2');
+
+/* Route for Advertisement_Description */
+
+Route::get('adv_desc','Adevertisement_DescriptionController@index');
+Route::get('adv_descadd','Adevertisement_DescriptionController@adv_desc_create');
+Route::get('adv_descedit/{id}','Adevertisement_DescriptionController@adv_desc_view');
+Route::get('adv_descdelete/{id}','Adevertisement_DescriptionController@adv_desc_delete');
+Route::post('adv_descadd','Adevertisement_DescriptionController@adv_desc_create');
+Route::post('adv_descedit/{id}','Adevertisement_DescriptionController@adv_desc_update');
+Route::post('adv_descsingle','Adevertisement_DescriptionController@adv_desc_single');
+Route::post('adv_descactivestatus','Adevertisement_DescriptionController@adv_desc_activestatus');
+
+/* Route forAdvertisement_Image */
+Route::get('ads_image','Advertisement_ImageController@index');
+Route::get('ads_imageadd','Advertisement_ImageController@adv_image_create');
+Route::get('ads_imageedit/{id}','Advertisement_ImageController@adv_image_view');
+Route::get('ads_imagedelete/{id}','Advertisement_ImageController@adv_image_delete');
+Route::post('ads_imageadd','Advertisement_ImageController@adv_image_create');
+Route::post('ads_imageedit/{id}','Advertisement_ImageController@adv_image_update');
+Route::post('adv_image_single','Advertisement_ImageController@adv_image_single');
+Route::post('adv_image_activestatus','Advertisement_ImageController@adv_image_activestatus');
+Route::post('adv_img_remove','AdvertismentController@adv_img_remove');
+
+/* Route for Advertisement_Search_Term */
+Route::get('ads_search','Advertisement_Search_TermsController@index');
+Route::get('ads_searchadd','Advertisement_Search_TermsController@ad_search_create');
+Route::get('ads_searchedit/{id}','Advertisement_Search_TermsController@ad_search_view');
+Route::get('ads_searchdelete/{id}','Advertisement_Search_TermsController@ad_search_delete');
+Route::post('ads_searchadd','Advertisement_Search_TermsController@ad_search_create');
+Route::post('ads_searchedit/{id}','Advertisement_Search_TermsController@ad_search_update');
+Route::post('ads_search_single','Advertisement_Search_TermsController@ad_search_single');
+Route::post('ads_search_activestatus','Advertisement_Search_TermsController@ad_search_activestatus');
+/* Route for Advertisement_Search_Term */
+Route::get('ads_offer','Advertisement_Offer_CodeController@index');
+Route::get('ads_offeradd','Advertisement_Offer_CodeController@ads_offer_create');
+Route::get('ads_offeredit/{id}','Advertisement_Offer_CodeController@ads_offer_view');
+Route::get('ads_offerdelete/{id}','Advertisement_Offer_CodeController@ads_offer_delete');
+Route::post('ads_offeradd','Advertisement_Offer_CodeController@ads_offer_create');
+Route::post('ads_offeredit/{id}','Advertisement_Offer_CodeController@ads_offer_update');
+Route::post('ads_offer_single','Advertisement_Offer_CodeController@ads_offer_single');
+Route::post('ads_offer_activestatus','Advertisement_Offer_CodeController@ads_offer_activestatus');
+
+/* Route for Offers */
+Route::get('offers','OffersController@index');
+Route::get('offersadd','OffersController@offers_create');
+Route::get('offersedit/{id}','OffersController@offers_edit');
+Route::get('offersdelete/{id}','OffersController@offers_delete');
+Route::post('offersadd','OffersController@offers_create');
+Route::post('offersedit/{id}','OffersController@offers_update');
+
+/* Route for OffersImage */
+Route::get('offers_image','OffersImageController@index');
+Route::get('offers_imageadd','OffersImageController@offer_image_create');
+Route::get('offers_imageedit/{id}','OffersImageController@offer_image_edit');
+Route::get('offers_imagedelete/{id}','OffersImageController@offer_image_delete');
+Route::post('offers_imageadd','OffersImageController@offer_image_create');
+Route::post('offers_imageedit/{id}','OffersImageController@offer_image_update');
+
+/* Route for offerscodes */
+Route::get('offers_codes','OfferscodesController@index');
+Route::get('offers_codesadd','OfferscodesController@offercode_create');
+Route::get('offers_codesedit/{id}','OfferscodesController@offercode_edit');
+Route::get('offers_codesdelete/{id}','OfferscodesController@offercode_delete');
+Route::post('offers_codesadd','OfferscodesController@offercode_create');
+Route::post('offers_codesedit/{id}','OfferscodesController@offercode_update');
+
+/* Route for Wallet */
+Route::get('wallet','WalletController@index');
+Route::get('walletadd','WalletController@wallet_add');
+Route::get('walletedit/{id}','WalletController@wallet_edit');
+Route::get('walletdelete/{id}','WalletController@wallet_delete');
+Route::post('walletadd','WalletController@wallet_add');
+Route::post('walletedit/{id}','WalletController@wallet_update');
+Route::post('wallet_single','WalletController@single_view');
+/* Route::post('wallet_single',function(){echo "fdfdsa";}); */
+Route::post('wallet_activestatus','WalletController@single_active');
+
+/* Route For wallet Transaction */
+/* Route::get('wallet_transaction/{id}','WallettransactionController@index'); */
+Route::get('wallet_transaction/{id}','WallettransactionController@index');
+Route::get('wallet_transactionadd/{id}','WallettransactionController@wallet_transaction_create');
+Route::post('wallet_transactionadd/{id}','WallettransactionController@wallet_transaction_create');
+Route::get('wallet_transactionedit/{id}','WallettransactionController@wallet_transaction_edit');
+Route::get('wallet_transactiondelete/{id}','WallettransactionController@wallet_transaction_delete');
+Route::post('wallet_transactionedit/{id}','WallettransactionController@wallet_transaction_update');
+Route::post('wallet_transaction_single','WallettransactionController@single_view');
+Route::post('wallet_transaction_activestatus','WallettransactionController@single_active');
+
+/* Route for wallet redeem request */
+Route::get('wallet_redeem','WalletredeemController@index');
+Route::get('wallet_redeemadd','WalletredeemController@wallet_redeem_create');
+Route::get('wallet_redeemedit/{id}','WalletredeemController@wallet_redeem_edit');
+Route::get('wallet_redeemdelete/{id}','WalletredeemController@wallet_redeem_delete');
+Route::post('wallet_redeemadd','WalletredeemController@wallet_redeem_create');
+Route::post('wallet_redeemedit/{id}','WalletredeemController@wallet_redeem_update');
+Route::post('wallet_redeem_single','WalletredeemController@single_view');
+Route::post('wallet_redeem_activestatus','WalletredeemController@single_active');
+
+
+/* Static Pages List */
+Route::get('static_pages','StaticpagesController@index');
+Route::get('static_pagesadd','StaticpagesController@static_pages_create');
+Route::get('pageedit/{id}','StaticpagesController@static_pages_edit');
+Route::get('pagedelete/{id}','StaticpagesController@static_pages_delete');
+Route::post('static_pagesadd','StaticpagesController@static_pages_create');
+Route::post('pageedit/{id}','StaticpagesController@static_pages_update');
+Route::post('static_pages_single','StaticpagesController@single_view');
+Route::post('static_pages_activestatus','StaticpagesController@single_active');
+Route::get('logout','AdminLoginController@admin_logout');
+
+/* Forgot Password */
+Route::get('forgot','AdminLoginController@forgot_password');
+Route::post('forgot','AdminLoginController@forgot_password');
+Route::get('change_password/{id}/{forgotpin}','AdminLoginController@change_password');
+Route::post('change_password/{id}/{forgotpin}','AdminLoginController@change_password');
+
+
+/* Promotions */
+Route::get('promotion_section','Promotion_SectionController@index');
+Route::get('promotion_sectionadd','Promotion_SectionController@create_promotion');
+Route::post('promotion_sectionadd','Promotion_SectionController@create_promotion');
+Route::get('promotion_sectionedit/{id}','Promotion_SectionController@view');
+Route::post('promotion_sectionedit/{id}','Promotion_SectionController@update');
+Route::get('promotion_sectiondelete/{id}','Promotion_SectionController@promotion_delete');
+Route::post('promotion_active/','Promotion_SectionController@single_active');
+Route::post('promotion_single','Promotion_SectionController@promotion_single_view');
+Route::post('check_pro_no_of_ads','Promotion_SectionController@check_pro_no_of_ads');
+
+/* Promotion Advertisement */
+Route::get('promotion_section_ads','Promotion_Section_AdvertisementController@index');
+Route::get('prom_ads_add','Promotion_Section_AdvertisementController@prom_ads_create');
+Route::post('prom_ads_add','Promotion_Section_AdvertisementController@prom_ads_create');
+Route::post('get_bus_ad','Promotion_Section_AdvertisementController@get_bus_ad');
+Route::post('prom_ads_delete','Promotion_Section_AdvertisementController@prom_ads_delete');
+
+
+Route::post('get_ad_image','Promotion_Section_AdvertisementController@get_ad_image');
+
+Route::get('get_notify','AdvertismentController@get_notify');
+Route::get('aboutus','AdminLoginController@aboutus');
